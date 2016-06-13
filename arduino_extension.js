@@ -616,7 +616,11 @@
       ['-'],
       ['r', 'map %n from %n %n to %n %n', 'mapValues', 50, 0, 100, -240, 240],
       ['-'],
-      [' ', 'show %n on display', 'segmentDisplay', 1]
+      [' ', 'show %n on display', 'segmentDisplay', 1],
+      [' ', 'show decimal dot on display', 'segmentDisplayDot', 1],
+      [' ', 'remove decimal dot on display', 'segmentRemoveDot', 1]
+
+
     ]
   };
 
