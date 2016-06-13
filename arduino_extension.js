@@ -474,7 +474,16 @@
       return false;
   };
   
-  ext.segmentDisplay = function(number) {
+  /** Display on 7 segment display **/
+  ext.segmentDisplay = function (number) {
+      //Validating the number is a finite integer
+      if (!isNaN(parseInt(number)) && isFinite(number)) {
+          return false;
+      }
+      //Validating the number is in {0,1,...,9}
+      if (!(number >= 0 && number <= 9)) {
+          return false;
+      }
     var segments = [
       [1, 0, 1, 1, 0, 1, 1, 1],
       [0, 0, 0, 1, 0, 1, 0, 0],
