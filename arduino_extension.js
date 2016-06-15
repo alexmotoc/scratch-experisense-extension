@@ -341,6 +341,18 @@
         deg >> 0x07]);
     device.send(msg.buffer);
   }
+  
+  function shiftOut(dataPin, clockPin, value) {
+    var mask;
+    for (mask = 128; mask > 0; mask = mask >> 1) {
+      //Clock low
+      digitalWrite(clockPin, LOW);
+      //Write relevant bit
+      digitalWrite(dataPin, value & mask);
+      //Clock high
+      digitalWrite(clockPin, HIGH);
+    }
+  }
 
   ext.whenConnected = function() {
     if (notifyConnection) return true;
@@ -502,6 +514,16 @@
       digitalWrite(i + startPin, val);
     });
   }
+  
+  ext.serialOut = function (value) {
+    var dataPin = 11,
+        clockPin = 12,
+        latchPin = 8;
+        
+    digitalWrite(latchPin, LOW);
+    shiftOut(11, 12, value);
+    digitalWrite(latchPin, HIGH);
+  }
 
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
     var output = (((bMax - bMin) * (val - aMin)) / (aMax - aMin)) + bMin;
@@ -601,7 +623,8 @@
       ['-'],
       ['r', 'map %n from %n %n to %n %n', 'mapValues', 50, 0, 100, -240, 240],
       ['-'],
-      [' ', 'show %n on display', 'segmentDisplay', 1]
+      [' ', 'show %n on display', 'segmentDisplay', 1],
+      [' ', 'write %n to shift register', 'serialOut' 1]
     ]
   };
 
