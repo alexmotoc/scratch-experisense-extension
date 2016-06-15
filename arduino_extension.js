@@ -581,8 +581,10 @@
       console.log('Attempting connection with ' + device.id);
       
       if (!dev) {
+        //Opening port failed
         console.log('Connection to ' + device.id + ' failed!');
         tryNextDevice();
+        return;
       }
       
       device.set_receive_handler(function(data) {
