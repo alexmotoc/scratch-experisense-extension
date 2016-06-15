@@ -344,7 +344,7 @@
   
   function shiftOut(dataPin, clockPin, value) {
     var mask;
-    for (mask = 128; mask > 0; mask = mask >> 1) {
+    for (mask = 256; mask > 0; mask = mask >> 1) {
       //Clock low
       digitalWrite(clockPin, LOW);
       //Write relevant bit
