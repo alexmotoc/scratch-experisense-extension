@@ -525,6 +525,21 @@
     digitalWrite(latchPin, HIGH);
   }
 
+  /** Display dot on 7 segment display **/
+  ext.segmentDisplayDot = function () {
+      writeSegmentDot(1);
+  }
+
+  ext.segmentRemoveDot = function () {
+      writeSegmentDot(0);
+  }
+
+  function writeSegmentDot(i) {
+      var dotPin = 6;
+      digitalWrite(dotPin, i);
+  }
+
+   
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
     var output = (((bMax - bMin) * (val - aMin)) / (aMax - aMin)) + bMin;
     return Math.round(output);
@@ -625,6 +640,8 @@
       ['-'],
       [' ', 'show %n on display', 'segmentDisplay', 1],
       [' ', 'write %n to shift register', 'serialOut' 1]
+      [' ', 'show decimal dot on display', 'segmentDisplayDot'],
+      [' ', 'remove decimal dot on display', 'segmentRemoveDot']
     ]
   };
 
