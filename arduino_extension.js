@@ -345,7 +345,8 @@
   function shiftOut(dataPin, clockPin, value) {
     var mask;
     //16-bit output
-    for (mask = 65536; mask > 0; mask = mask >> 1) {
+    //TODO: write in hex as 0x10000?
+    for (mask = 65536; mask > 0; mask >>= 1) {
       //Clock low
       digitalWrite(clockPin, LOW);
       //Write relevant bit
@@ -497,7 +498,7 @@
       if (!(number >= 0 && number <= 9)) {
         return false;
       }
-    var segments = [
+    /*var segments = [
       [1, 0, 1, 1, 0, 1, 1, 1],
       [1, 0, 0, 0, 0, 0, 1, 0],
       [0, 0, 1, 1, 1, 0, 1, 1],
@@ -508,12 +509,12 @@
       [1, 0, 0, 0, 0, 1, 1, 1],
       [1, 0, 1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 1, 1, 1, 1]
-    ];
-    var startPin = 5;
+    ];*/
     
-    segments[number].forEach(function (val, i) {
-      digitalWrite(i + startPin, val);
-    });
+    //TODO: complete once display pins are known
+    var segments = [0xB7, 0x82, 0x3B];
+    
+    shiftOut(segments[number]);
   }
   
   ext.serialOut = function (value) {
