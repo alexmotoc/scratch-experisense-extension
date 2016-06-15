@@ -581,13 +581,11 @@
       console.log('Attempting connection with ' + device.id);
       
       if (!dev) {
-        console.log('Connection failed!');
+        console.log('Connection to ' + device.id + ' failed!');
         tryNextDevice();
       }
       
       device.set_receive_handler(function(data) {
-        console.log('Data:');
-        console.log(data);
         var inputData = new Uint8Array(data);
         processInput(inputData);
       });
