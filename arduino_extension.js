@@ -512,9 +512,14 @@
     ];*/
     
     //TODO: complete once display pins are known
-    var segments = [0xB7, 0x82, 0x3B];
+    var dataPin = 11,
+        clockPin = 12,
+        latchPin = 8,
+        segments = [0xB7, 0x82, 0x3B];
     
-    shiftOut(segments[number]);
+    digitalWrite(latchPin, LOW);
+    shiftOut(11, 12, segments[number]);
+    digitalWrite(latchPin, HIGH);
   }
   
   ext.serialOut = function (value) {
