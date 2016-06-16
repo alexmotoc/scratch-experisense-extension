@@ -363,7 +363,7 @@
   function segmentDisplay(number, latchPin, shift) {
     var dataPin = 11,
         clockPin = 12,
-        segmentConfigs = [0xB7, 0x82, 0x3B];
+        segmentConfigs = [0xB7, 0x82, 0x3B, 0xAB, 0x8E, 0xAD, 0xBC, 0x87, 0xBF, 0x8F];
     //Validating the number is a finite integer
     if (isNaN(parseInt(number)) || !isFinite(number)) {
      return false;
