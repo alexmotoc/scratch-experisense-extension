@@ -344,6 +344,7 @@
   
   function shiftOut(dataPin, clockPin, value) {
     var mask;
+    console.log('writing :' + value + ' ' + value.toString(16));
     //16-bit output
     //TODO: write in hex as 0x10000?
     for (mask = 1; mask < 0x10000; mask <<= 1) {
@@ -525,7 +526,7 @@
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value) {
     var latchPin = 8;
-    segmentDisplay(value, latchPin), false;
+    segmentDisplay(value, latchPin, false);
   }
   
   ext.secondSegmentDisplay = function (value) {
@@ -540,7 +541,7 @@
         latchPin = 8;
         
     digitalWrite(latchPin, LOW);
-    shiftOut(11, 12, value);
+    shiftOut(dataPin, clockPin, value);
     digitalWrite(latchPin, HIGH);
   }
 
