@@ -355,6 +355,36 @@
       digitalWrite(clockPin, HIGH);
     }
   }
+  
+  function segmentDisplay(number, latchPin) {
+    var dataPin = 11,
+        clockPin = 12,
+        segmentConfigs = [0xB7, 0x82, 0x3B];
+    //Validating the number is a finite integer
+    if (isNaN(parseInt(number)) || !isFinite(number)) {
+     return false;
+   }
+   //Validating the number is in {0,1,...,9}    
+   if (!(number >= 0 && number <= 9)) {
+     return false;
+   }
+    /*var segments = [
+      [1, 0, 1, 1, 0, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 1, 1, 1, 0, 1, 1],
+      [1, 0, 1, 0, 1, 0, 1, 1],
+      [1, 0, 0, 0, 1, 1, 1, 0],
+      [1, 0, 1, 0, 1, 1, 0, 1],
+      [1, 0, 1, 1, 1, 1, 0, 0],
+      [1, 0, 0, 0, 0, 1, 1, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 1, 1, 1, 1]
+    ];*/
+    
+    digitalWrite(latchPin, LOW);
+    shiftOut(dataPin, clockPin, segments[number]);
+    digitalWrite(latchPin, HIGH);
+  }
 
   ext.whenConnected = function() {
     if (notifyConnection) return true;
@@ -489,39 +519,17 @@
   };
   
   /** Display on 7 segment display **/
-  ext.segmentDisplay = function (number) {
-      //Validating the number is a finite integer
-      if (isNaN(parseInt(number)) || !isFinite(number)) {
-        return false;
-      }
-      //Validating the number is in {0,1,...,9}
-      if (!(number >= 0 && number <= 9)) {
-        return false;
-      }
-    /*var segments = [
-      [1, 0, 1, 1, 0, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 1, 0],
-      [0, 0, 1, 1, 1, 0, 1, 1],
-      [1, 0, 1, 0, 1, 0, 1, 1],
-      [1, 0, 0, 0, 1, 1, 1, 0],
-      [1, 0, 1, 0, 1, 1, 0, 1],
-      [1, 0, 1, 1, 1, 1, 0, 0],
-      [1, 0, 0, 0, 0, 1, 1, 1],
-      [1, 0, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 1, 1, 1, 1]
-    ];*/
-    
-    //TODO: complete once display pins are known
-    var dataPin = 11,
-        clockPin = 12,
-        latchPin = 8,
-        segments = [0xB7, 0x82, 0x3B];
-    
-    digitalWrite(latchPin, LOW);
-    shiftOut(11, 12, segments[number]);
-    digitalWrite(latchPin, HIGH);
+  ext.firstSegmentDisplay = function (value) {
+    var latchPin = 8;
+    segmentDisplay(value, latchPin);
   }
   
+  ext.secondSegmentDisplay = function (value) {
+    var latchPin = 7;
+    //Shift 8 bits to left to write to second shift register (for second display)
+    segmentDisplay(value << 8, latchPin);
+  }
+   
   ext.serialOut = function (value) {
     var dataPin = 11,
         clockPin = 12,
@@ -654,7 +662,8 @@
       ['-'],
       ['r', 'map %n from %n %n to %n %n', 'mapValues', 50, 0, 100, -240, 240],
       ['-'],
-      [' ', 'show %n on display', 'segmentDisplay', 1],
+      [' ', 'show %n on first display', 'firstSegmentDisplay', 1],
+      [' ', 'show %n on second display', 'secondSegmentDisplay' 1],
       [' ', 'write %n to shift register', 'serialOut', 1],
       [' ', 'show decimal dot on display', 'segmentDisplayDot'],
       [' ', 'remove decimal dot on display', 'segmentRemoveDot']
