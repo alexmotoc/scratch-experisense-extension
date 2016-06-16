@@ -388,7 +388,8 @@
     digitalWrite(latchPin, LOW);
     //Shift 8 bits to left if necessary to write to second shift register
     //(for second display)
-    shiftOut(dataPin, clockPin, segmentConfigs[number] << (shift ? 0 : 8));
+    //TODO: remove bitwise NOT (testing with active low display)
+    shiftOut(dataPin, clockPin, ~segmentConfigs[number] << (shift ? 0 : 8));
     digitalWrite(latchPin, HIGH);
   }
 
