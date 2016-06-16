@@ -356,6 +356,7 @@
       console.log(value & mask);
       //Clock high
       digitalWrite(clockPin, HIGH);
+      digitalWrite(clockPin, LOW);
     }
   }
   
