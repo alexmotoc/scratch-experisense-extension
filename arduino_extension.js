@@ -350,11 +350,8 @@
       digitalWrite(clockPin, LOW);
       //Write relevant bit
       digitalWrite(dataPin, value & mask);
-      //debug
-      console.log(value & mask);
       //Clock high
       digitalWrite(clockPin, HIGH);
-      digitalWrite(clockPin, LOW);
     }
   }
   
