@@ -663,7 +663,7 @@
       ['r', 'map %n from %n %n to %n %n', 'mapValues', 50, 0, 100, -240, 240],
       ['-'],
       [' ', 'show %n on first display', 'firstSegmentDisplay', 1],
-      [' ', 'show %n on second display', 'secondSegmentDisplay' 1],
+      [' ', 'show %n on second display', 'secondSegmentDisplay', 1],
       [' ', 'write %n to shift register', 'serialOut', 1],
       [' ', 'show decimal dot on display', 'segmentDisplayDot'],
       [' ', 'remove decimal dot on display', 'segmentRemoveDot']
