@@ -382,7 +382,7 @@
     ];*/
     
     digitalWrite(latchPin, LOW);
-    shiftOut(dataPin, clockPin, segmentsConfigs[number]);
+    shiftOut(dataPin, clockPin, segmentConfigs[number]);
     digitalWrite(latchPin, HIGH);
   }
 
