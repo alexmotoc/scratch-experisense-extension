@@ -346,7 +346,7 @@
     var mask;
     //16-bit output
     //TODO: write in hex as 0x10000?
-    for (mask = 1; mask <= 0x10000; mask <<= 1) {
+    for (mask = 1; mask < 0x10000; mask <<= 1) {
       //Clock low
       digitalWrite(clockPin, LOW);
       //Write relevant bit
