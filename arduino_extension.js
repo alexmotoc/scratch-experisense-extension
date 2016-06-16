@@ -346,7 +346,7 @@
     var mask;
     //16-bit output
     //TODO: write in hex as 0x10000?
-    for (mask = 65536; mask > 0; mask >>= 1) {
+    for (mask = 1; mask <= 0x10000; mask <<= 1) {
       //Clock low
       digitalWrite(clockPin, LOW);
       //Write relevant bit
@@ -384,7 +384,8 @@
     digitalWrite(latchPin, LOW);
     //Shift 8 bits to left if necessary to write to second shift register
     //(for second display)
-    shiftOut(dataPin, clockPin, segmentConfigs[number] << (shift ? 8 : 0));
+    //TODO: remove bitwise not (testing with active low display)
+    shiftOut(dataPin, clockPin, ~segmentConfigs[number] << (shift ? 8 : 0));
     digitalWrite(latchPin, HIGH);
   }
 
