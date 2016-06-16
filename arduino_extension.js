@@ -356,7 +356,7 @@
     }
   }
   
-  function segmentDisplay(number, latchPin) {
+  function segmentDisplay(number, latchPin, shift) {
     var dataPin = 11,
         clockPin = 12,
         segmentConfigs = [0xB7, 0x82, 0x3B];
@@ -382,7 +382,9 @@
     ];*/
     
     digitalWrite(latchPin, LOW);
-    shiftOut(dataPin, clockPin, segmentConfigs[number]);
+    //Shift 8 bits to left if necessary to write to second shift register
+    //(for second display)
+    shiftOut(dataPin, clockPin, segmentConfigs[number] << (shift ? 8 : 0));
     digitalWrite(latchPin, HIGH);
   }
 
@@ -521,13 +523,13 @@
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value) {
     var latchPin = 8;
-    segmentDisplay(value, latchPin);
+    segmentDisplay(value, latchPin), false;
   }
   
   ext.secondSegmentDisplay = function (value) {
     var latchPin = 7;
     //Shift 8 bits to left to write to second shift register (for second display)
-    segmentDisplay(value << 8, latchPin);
+    segmentDisplay(value, latchPin, true);
   }
    
   ext.serialOut = function (value) {
