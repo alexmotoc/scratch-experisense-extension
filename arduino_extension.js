@@ -564,7 +564,7 @@
     return readResistiveDivider(pin, 10);
   }
   
-  ext.calculateSensitiveResistance = function() {
+  ext.calculateSensitiveResistance = function(pin) {
     //10kΩ and 1MΩ resistors connected in series
     return readResistiveDivider(pin, 1000 + 10);
   }
