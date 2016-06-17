@@ -391,7 +391,8 @@
   /* Calculate resistance connected to pin using resistive divider (resistance in kΩ) */
   function readResistiveDivider(pin, resistance) {
     var vIn = 5,
-        vOut = analogRead(pin);
+        //analogRead returns value between 0 - 100, map to 0-5V
+        vOut = analogRead(pin) / 20;
         
     return resistance / (vIn / vOut - 1);
   }
