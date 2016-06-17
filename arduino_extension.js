@@ -387,6 +387,14 @@
     shiftOut(dataPin, clockPin, ~segmentConfigs[number] << (secondRegister ? 0 : 8));
     digitalWrite(latchPin, HIGH);
   }
+  
+  /* Calculate resistance connected to pin using resistive divider (resistance in kΩ) */
+  function readResistiveDivider(pin, resistance) {
+    var vIn = 5,
+        vOut = analogRead(pin);
+        
+    return resistance / (vIn / vOut - 1);
+  }
 
   ext.whenConnected = function() {
     if (notifyConnection) return true;
@@ -550,6 +558,16 @@
   ext.segmentRemoveDot = function () {
       writeSegmentDot(0);
   }
+  
+  ext.calculateResistance = function(pin) {
+    //using 10kΩ resistor
+    return readResistiveDivider(pin, 10);
+  }
+  
+  ext.calculateSensitiveResistance = function() {
+    //10kΩ and 1MΩ resistors connected in series
+    return readResistiveDivider(pin, 1000 + 10);
+  }
 
   function writeSegmentDot(i) {
       var dotPin = 6;
@@ -668,7 +686,10 @@
       [' ', 'show %n on second display', 'secondSegmentDisplay', 1],
       [' ', 'write %n to shift register', 'serialOut', 1],
       [' ', 'show decimal dot on display', 'segmentDisplayDot'],
-      [' ', 'remove decimal dot on display', 'segmentRemoveDot']
+      [' ', 'remove decimal dot on display', 'segmentRemoveDot'],
+      ['-'],
+      ['r', 'resistance on analog %n in kΩ', 'calculateResistance', 0],
+      ['r', 'extra-sensitive resistance on analog %n in kΩ', 'calculateSensitiveResistance', 0]
     ]
   };
 
