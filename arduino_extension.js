@@ -84,7 +84,7 @@
     devices: [
       {name: 'built-in button', pin: 6, val: 0},
       {name: 'light sensor', pin: 1, val: 0},
-      {name: 'rotation knob' pin: 0, val: 0}
+      {name: 'rotation knob', pin: 0, val: 0}
     ],
     add: function(dev, pin) {
       var device = this.search(dev);
