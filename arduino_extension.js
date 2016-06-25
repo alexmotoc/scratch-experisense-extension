@@ -86,7 +86,7 @@
       {name: 'light sensor', pin: 1, val: 0},
       {name: 'rotation knob', pin: 0, val: 0}
     ],
-    add: function(dev, pin) {
+    add: function (dev, pin) {
       var device = this.search(dev);
       if (!device) {
         device = {name: dev, pin: pin, val: 0};
@@ -96,7 +96,7 @@
         device.val = 0;
       }
     },
-    search: function(dev) {
+    search: function (dev) {
       var i;
       for (i=0; i<this.devices.length; i++) {
         if (this.devices[i].name === dev) {
@@ -104,7 +104,7 @@
         }
       }
       return null;
-    };
+    }
   }
 
   function init() {
