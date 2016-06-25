@@ -80,12 +80,13 @@
   var pingCount = 0;
   var pinger = null;
 
-  var hwList = new HWList();
-
-  function HWList() {
-    this.devices = [];
-
-    this.add = function(dev, pin) {
+  var hwList =  {
+    devices: [
+      {name: 'built-in button', pin: 6, val: 0},
+      {name: 'light sensor', pin: 1, val: 0},
+      {name: 'rotation knob' pin: 0, val: 0}
+    ],
+    add: function(dev, pin) {
       var device = this.search(dev);
       if (!device) {
         device = {name: dev, pin: pin, val: 0};
@@ -94,12 +95,13 @@
         device.pin = pin;
         device.val = 0;
       }
-    };
-
-    this.search = function(dev) {
-      for (var i=0; i<this.devices.length; i++) {
-        if (this.devices[i].name === dev)
+    },
+    search: function(dev) {
+      var i;
+      for (i=0; i<this.devices.length; i++) {
+        if (this.devices[i].name === dev) {
           return this.devices[i];
+        }
       }
       return null;
     };
@@ -123,7 +125,9 @@
           clearInterval(pinger);
           pinger = null;
           connected = false;
-          if (device) device.close();
+          if (device) {
+            device.close();
+          }
           device = null;
           return;
         }
@@ -355,10 +359,11 @@
     }
   }
   
-  function segmentDisplay(number, latchPin, secondRegister) {
+  function segmentDisplay(value, latchPin, secondRegister) {
     var dataPin = 11,
-        clockPin = 12,
-        segmentConfigs = [0xB7, 0x82, 0x3B, 0xAB, 0x8E, 0xAD, 0xBC, 0x87, 0xBF, 0x8F];
+        clockPin = 12;
+        //segmentConfigs = [0xB7, 0x82, 0x3B, 0xAB, 0x8E, 0xAD, 0xBC, 0x87, 0xBF, 0x8F];
+
     //Validating the number is a finite integer
     if (isNaN(parseInt(number)) || !isFinite(number)) {
      return false;
@@ -367,18 +372,6 @@
    if (!(number >= 0 && number <= 9)) {
      return false;
    }
-    /*var segments = [
-      [1, 0, 1, 1, 0, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 1, 0],
-      [0, 0, 1, 1, 1, 0, 1, 1],
-      [1, 0, 1, 0, 1, 0, 1, 1],
-      [1, 0, 0, 0, 1, 1, 1, 0],
-      [1, 0, 1, 0, 1, 1, 0, 1],
-      [1, 0, 1, 1, 1, 1, 0, 0],
-      [1, 0, 0, 0, 0, 1, 1, 1],
-      [1, 0, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 1, 1, 1, 1]
-    ];*/
     
     digitalWrite(latchPin, LOW);
     //Shift 8 bits to left if necessary to write to second shift register
@@ -531,7 +524,9 @@
   
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value) {
-    var latchPin = 8;
+    var latchPin = 8,
+        //segmentConfigs = [0xEE, 0x28, 0xCD, 0xAD, 0x2B, 0x67, 0xE7, 0x2C, 0xEF, 0x6F];
+        segmentConfigs = [0x77, 
     segmentDisplay(value, latchPin, false);
   }
   
@@ -696,10 +691,11 @@
 
   var menus = {
     en: {
-      buttons: ['button A', 'button B', 'button C', 'button D'],
+      additionalButtons: ['button A', 'button B', 'button C', 'button D'],
+      get buttons () { return this.additionalButtons.unshift('built-in button'); },
       btnStates: ['pressed', 'released'],
       hwIn: ['rotation knob', 'light sensor', 'temperature sensor'],
-      hwOut: ['led A', 'led B', 'led C', 'led D', 'button A', 'button B', 'button C', 'button D', 'servo A', 'servo B', 'servo C', 'servo D'],
+      get hwOut () { return this.leds.concat(this.additionalButtons, this.servos); },
       leds: ['led A', 'led B', 'led C', 'led D'],
       outputs: ['on', 'off'],
       ops: ['>', '=', '<'],
