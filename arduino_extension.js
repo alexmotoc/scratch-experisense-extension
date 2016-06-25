@@ -525,8 +525,8 @@
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value) {
     var latchPin = 8,
-        //segmentConfigs = [0xEE, 0x28, 0xCD, 0xAD, 0x2B, 0x67, 0xE7, 0x2C, 0xEF, 0x6F];
-        segmentConfigs = [0x77, 
+        segmentConfigs = [0xEE, 0x28, 0xCD, 0xAD, 0x2B, 0x67, 0xE7, 0x2C, 0xEF, 0x6F];
+        //segmentConfigs = [0x77, 
     segmentDisplay(value, latchPin, false);
   }
   
@@ -537,9 +537,9 @@
   }
    
   ext.serialOut = function (value) {
-    var dataPin = 11,
+    var dataPin = 10,
         clockPin = 12,
-        latchPin = 8;
+        latchPin = 11;
         
     digitalWrite(latchPin, LOW);
     shiftOut(dataPin, clockPin, value);
