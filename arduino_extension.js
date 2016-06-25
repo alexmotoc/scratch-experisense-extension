@@ -692,7 +692,7 @@
   var menus = {
     en: {
       additionalButtons: ['button A', 'button B', 'button C', 'button D'],
-      get buttons () { return this.additionalButtons.unshift('built-in button'); },
+      get buttons () { return ['built-in button'].concat(this.additionalButtons); },
       btnStates: ['pressed', 'released'],
       hwIn: ['rotation knob', 'light sensor', 'temperature sensor'],
       get hwOut () { return this.leds.concat(this.additionalButtons, this.servos); },
