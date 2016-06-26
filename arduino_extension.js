@@ -296,7 +296,7 @@
       return;
     }
     //FIXME: UGLY HACK - properly detect analog pins if this works!
-    if (pin > 13) {
+    if (pin <= 13) {
       pinMode(pin, INPUT);
     }
     console.log('Reading pin ' + pin);
