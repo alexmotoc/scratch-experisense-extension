@@ -605,6 +605,7 @@
   function tryNextDevice() {
     device = potentialDevices.shift();
     if (!device) return;
+    console.log(this.caller);
 
     device.open({ stopBits: 0, bitRate: 57600, ctsFlowControl: 0 }, function (dev) {
       console.log('Attempting connection with ' + device.id);
@@ -617,6 +618,7 @@
       }
       
       device.set_receive_handler(function(data) {
+        console.log("set handler");
         var inputData = new Uint8Array(data);
         processInput(inputData);
       });
