@@ -281,7 +281,8 @@
   function analogRead(pin) {
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
       //Set pin mode in case pin was previously used for digital data
-      pinMode(pin, ANALOG);
+      //(converting analog pin number to digital equivalent)
+      pinMode(analogMapping.indexOf(pin), ANALOG);
       return Math.round((analogInputData[pin] * 100) / 1023);
     } else {
       var valid = [];
