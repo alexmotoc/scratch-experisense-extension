@@ -299,6 +299,8 @@
     if (pin > 13) {
       pinMode(pin, INPUT);
     }
+    console.log('Reading pin ' + pin);
+    console.log(digitalInputData);
     return (digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01;
   }
 
