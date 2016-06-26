@@ -301,6 +301,7 @@
     }
     console.log('Reading pin ' + pin);
     console.log(digitalInputData);
+    console.table(pinModes);
     return (digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01;
   }
 
