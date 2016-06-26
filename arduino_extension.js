@@ -280,6 +280,8 @@
 
   function analogRead(pin) {
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
+      //Set pin mode in case pin was previously used for digital data
+      pinMode(pin, ANALOG);
       return Math.round((analogInputData[pin] * 100) / 1023);
     } else {
       var valid = [];
@@ -295,13 +297,7 @@
       console.log('ERROR: valid input pins are ' + pinModes[INPUT].join(', '));
       return;
     }
-    //FIXME: UGLY HACK - properly detect analog pins if this works!
-    if (pin <= 13) {
-      pinMode(pin, INPUT);
-    }
-    console.log('Reading pin ' + pin);
-    console.log(digitalInputData);
-    console.table(pinModes);
+    pinMode(pin, INPUT);
     return (digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01;
   }
 
