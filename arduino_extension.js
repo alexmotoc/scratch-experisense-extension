@@ -524,14 +524,14 @@
   
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value) {
-    var latchPin = 8,
+    var latchPin = 13,
         segmentConfigs = [0xEE, 0x28, 0xCD, 0xAD, 0x2B, 0x67, 0xE7, 0x2C, 0xEF, 0x6F];
         //segmentConfigs = [0x77, 
     segmentDisplay(value, latchPin, false);
   }
   
   ext.secondSegmentDisplay = function (value) {
-    var latchPin = 7;
+    var latchPin = 13;
     //Shift 8 bits to left to write to second shift register (for second display)
     segmentDisplay(value, latchPin, true);
   }
