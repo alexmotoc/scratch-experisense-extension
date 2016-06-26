@@ -295,7 +295,10 @@
       console.log('ERROR: valid input pins are ' + pinModes[INPUT].join(', '));
       return;
     }
-    pinMode(pin, INPUT);
+    //FIXME: UGLY HACK - properly detect analog pins if this works!
+    if (pin > 13) {
+      pinMode(pin, INPUT);
+    }
     return (digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01;
   }
 
