@@ -526,8 +526,7 @@
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value) {
     var latchPin = 11,
-        //TODO: Update w/ correct values
-        segmentConfigs = [0xEE, 0x28, 0xCD, 0xAD, 0x2B, 0x67, 0xE7, 0x2C, 0xEF, 0x6F];
+        segmentConfigs = [0x77, 0x14, 0xB3, 0xB6, 0xD4, 0xE6, 0xE7, 0x34, 0xF7, 0xF6];
         //segmentConfigs = [0x77, 
     segmentDisplay(segmentConfigs[value], latchPin, false);
   }
