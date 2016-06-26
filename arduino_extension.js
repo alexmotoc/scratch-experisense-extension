@@ -359,11 +359,12 @@
     }
   }
   
-  function segmentDisplay(value, latchPin, secondRegister) {
+  function segmentDisplay(segments, latchPin, secondRegister) {
     var dataPin = 11,
         clockPin = 12;
         //segmentConfigs = [0xB7, 0x82, 0x3B, 0xAB, 0x8E, 0xAD, 0xBC, 0x87, 0xBF, 0x8F];
 
+  /*
     //Validating the number is a finite integer
     if (isNaN(parseInt(number)) || !isFinite(number)) {
      return false;
@@ -372,12 +373,13 @@
    if (!(number >= 0 && number <= 9)) {
      return false;
    }
+   */
     
     digitalWrite(latchPin, LOW);
     //Shift 8 bits to left if necessary to write to second shift register
     //(for second display)
     //TODO: remove bitwise NOT (testing with active low display)
-    shiftOut(dataPin, clockPin, ~segmentConfigs[number] << (secondRegister ? 0 : 8));
+    shiftOut(dataPin, clockPin, segments << (secondRegister ? 0 : 8));
     digitalWrite(latchPin, HIGH);
   }
   
@@ -525,15 +527,18 @@
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value) {
     var latchPin = 13,
+        //TODO: Update w/ correct values
         segmentConfigs = [0xEE, 0x28, 0xCD, 0xAD, 0x2B, 0x67, 0xE7, 0x2C, 0xEF, 0x6F];
         //segmentConfigs = [0x77, 
-    segmentDisplay(value, latchPin, false);
+    segmentDisplay(segmentConfigs[value], latchPin, false);
   }
   
   ext.secondSegmentDisplay = function (value) {
-    var latchPin = 13;
+    var latchPin = 13,
+        //TODO: Update w/ correct values
+        segmentConfigs = [0xEE, 0x28, 0xCD, 0xAD, 0x2B, 0x67, 0xE7, 0x2C, 0xEF, 0x6F];
     //Shift 8 bits to left to write to second shift register (for second display)
-    segmentDisplay(value, latchPin, true);
+    segmentDisplay(segmentConfigs[value], latchPin, true);
   }
    
   ext.serialOut = function (value) {
