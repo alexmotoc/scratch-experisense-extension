@@ -360,7 +360,7 @@
   }
   
   function segmentDisplay(segments, latchPin, secondRegister) {
-    var dataPin = 11,
+    var dataPin = 10,
         clockPin = 12;
         //segmentConfigs = [0xB7, 0x82, 0x3B, 0xAB, 0x8E, 0xAD, 0xBC, 0x87, 0xBF, 0x8F];
 
@@ -378,7 +378,6 @@
     digitalWrite(latchPin, LOW);
     //Shift 8 bits to left if necessary to write to second shift register
     //(for second display)
-    //TODO: remove bitwise NOT (testing with active low display)
     shiftOut(dataPin, clockPin, segments << (secondRegister ? 0 : 8));
     digitalWrite(latchPin, HIGH);
   }
