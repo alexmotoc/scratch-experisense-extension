@@ -282,7 +282,6 @@
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
       //Set pin mode in case pin was previously used for digital data
       //(converting analog pin number to digital equivalent)
-      console.log(analogChannel.indexOf(pin));
       pinMode(analogChannel.indexOf(pin), ANALOG);
       return Math.round((analogInputData[pin] * 100) / 1023);
     } else {
