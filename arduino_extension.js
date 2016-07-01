@@ -84,7 +84,7 @@
   
   var digitalConnectionMapping = {};
   
-  for conn, pin in analogConnectionMapping {
+  for (conn, pin) in analogConnectionMapping {
     if analogConnectionMapping.hasOwnProperty(conn) {
       digitalConnectionMapping[conn] = pin + 14;
     }
