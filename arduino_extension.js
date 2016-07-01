@@ -295,11 +295,21 @@
     device.send(msg.buffer);
   }
 
-  function analogRead(pin) {
+  function analogRead(pin, extraSensitive) {
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
       //Set pin mode in case pin was previously used for digital data
       //(converting analog pin number to digital equivalent)
       pinMode(analogChannel.indexOf(pin), ANALOG);
+      //MOSFET for setting sensitivity is on same number digital pin
+      // (e.g. A5 set by MOSFET on D5)
+      if (extraSensitive) {
+        //enable extra sensitivity
+        digitalWrite(pin, HIGH);
+      } else {
+        //revert to standard sensitivity
+        digitalWrite(pin, LOW);
+      }
+      
       return Math.round((analogInputData[pin] * 100) / 1023);
     } else {
       var valid = [];
@@ -406,7 +416,8 @@
   function readResistiveDivider(pin, resistance) {
     var vIn = 5,
         //analogRead returns value between 0 - 100, map to 0-5V
-        vOut = analogRead(pin) / 20;
+        //FIXME: UGLY HACK ALERT!!
+        vOut = analogRead(pin, (resistance > 10)) / 20;
         
     return resistance / (vIn / vOut - 1);
   }
