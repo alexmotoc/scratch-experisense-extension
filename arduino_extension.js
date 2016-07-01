@@ -72,6 +72,23 @@
   var notifyConnection = false;
   var device = null;
   var inputData = null;
+  
+  var analogConnectionMapping = {
+    A: 2
+    B: 3
+    C: 4
+    D: 5
+    EXT1: 0
+    EXT2: 1
+  }
+  
+  var digitalConnectionMapping = {};
+  
+  for conn, pin in analogConnectionMapping {
+    if analogConnectionMapping.hasOwnProperty(conn) {
+      digitalConnectionMapping[conn] = pin + 14;
+    }
+  }
 
   // TEMPORARY WORKAROUND
   // Since _deviceRemoved is not used with Serial devices
@@ -84,7 +101,7 @@
     devices: [
       {name: 'built-in button', pin: 6, val: 0},
       {name: 'light sensor', pin: 1, val: 0},
-      {name: 'rotation knob', pin: 0, val: 0}
+      {name: 'dial', pin: 0, val: 0}
     ],
     add: function (dev, pin) {
       var device = this.search(dev);
@@ -399,10 +416,11 @@
     return false;
   };
 
-  ext.analogWrite = function(pin, val) {
-    analogWrite(pin, val);
+  ext.analogWrite = function(conn, val) {
+    analogWrite(analogConnectionMapping[conn], val);
   };
 
+  //FIXME: mapping
   ext.digitalWrite = function(pin, val) {
     if (val == menus[lang]['outputs'][0])
       digitalWrite(pin, HIGH);
@@ -410,15 +428,17 @@
       digitalWrite(pin, LOW);
   };
 
-  ext.analogRead = function(pin) {
-    return analogRead(pin);
+  ext.analogRead = function(conn) {
+    return analogRead(analogConnectionMapping[conn]);
   };
 
+  //FIXME: mapping
   ext.digitalRead = function(pin) {
     return digitalRead(pin);
   };
 
-  ext.whenAnalogRead = function(pin, op, val) {
+  ext.whenAnalogRead = function(conn, op, val) {
+    var pin = analogConnectionMapping[conn];
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
       if (op == '>')
         return analogRead(pin) > val;
@@ -431,6 +451,7 @@
     }
   };
 
+  //FIXME: mapping
   ext.whenDigitalRead = function(pin, val) {
     if (hasCapability(pin, INPUT)) {
       if (val == menus[lang]['outputs'][0])
@@ -440,8 +461,8 @@
     }
   };
 
-  ext.connectHW = function(hw, pin) {
-    hwList.add(hw, pin);
+  ext.connectHW = function(hw, conn) {
+    hwList.add(hw, digitalConnectionMapping[conn]);
   };
 
   ext.rotateServo = function(servo, deg) {
@@ -550,31 +571,16 @@
     shiftOut(dataPin, clockPin, value);
     digitalWrite(latchPin, HIGH);
   }
-
-  /** Display dot on 7 segment display **/
-  ext.segmentDisplayDot = function () {
-      writeSegmentDot(1);
-  }
-
-  ext.segmentRemoveDot = function () {
-      writeSegmentDot(0);
-  }
   
-  ext.calculateResistance = function(pin) {
-    //using 10kΩ resistor
-    return readResistiveDivider(pin, 10);
-  }
-  
-  ext.calculateSensitiveResistance = function(pin) {
+  ext.calculateResistance = function(sensitivity, conn) {
+    var pin = analogConnectionMapping[conn];
+    if (conn === 'normal') {
+      //10kΩ resistor
+      return readResistiveDivider(pin, 10);
+    }
     //10kΩ and 1MΩ resistors connected in series
     return readResistiveDivider(pin, 1000 + 10);
   }
-
-  function writeSegmentDot(i) {
-      var dotPin = 6;
-      digitalWrite(dotPin, i);
-  }
-
    
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
     var output = (((bMax - bMin) * (val - aMin)) / (aMax - aMin)) + bMin;
@@ -658,8 +664,8 @@
   var blocks = {
     en: [
       ['h', 'when device is connected', 'whenConnected'],
-      [' ', 'connect %m.hwOut to pin %n', 'connectHW', 'led A', 3],
-      [' ', 'connect %m.hwIn to analog %n', 'connectHW', 'rotation knob', 0],
+      [' ', 'connect %m.hwOut to %m.voltageConnections', 'connectHW', 'led A', 'EXT1'],
+      [' ', 'connect %m.hwIn to %m.resistanceConnections', 'connectHW', 'dial', 'A'],
       ['-'],
       [' ', 'set %m.leds %m.outputs', 'digitalLED', 'led A', 'on'],
       [' ', 'set %m.leds brightness to %n%', 'setLED', 'led A', 100],
@@ -671,28 +677,30 @@
       ['h', 'when %m.buttons is %m.btnStates', 'whenButton', 'button A', 'pressed'],
       ['b', '%m.buttons pressed?', 'isButtonPressed', 'button A'],
       ['-'],
-      ['h', 'when %m.hwIn %m.ops %n%', 'whenInput', 'rotation knob', '>', 50],
-      ['r', 'read %m.hwIn', 'readInput', 'rotation knob'],
+      ['h', 'when %m.hwIn %m.ops %n%', 'whenInput', 'dial', '>', 50],
+      ['r', 'read %m.hwIn', 'readInput', 'dial'],
       ['-'],
-      [' ', 'set pin %n %m.outputs', 'digitalWrite', 1, 'on'],
-      [' ', 'set pin %n to %n%', 'analogWrite', 3, 100],
+      //[' ', 'set pin %n %m.outputs', 'digitalWrite', 1, 'on'],
+      [' ', 'set %m.voltageConnections to %n%', 'analogWrite', 'EXT1', 100],
+      //['-'],
+      //['h', 'when pin %n is %m.outputs', 'whenDigitalRead', 1, 'on'],
+      //['b', 'pin %n on?', 'digitalRead', 1],
       ['-'],
-      ['h', 'when pin %n is %m.outputs', 'whenDigitalRead', 1, 'on'],
-      ['b', 'pin %n on?', 'digitalRead', 1],
-      ['-'],
-      ['h', 'when analog %n %m.ops %n%', 'whenAnalogRead', 1, '>', 50],
-      ['r', 'read analog %n', 'analogRead', 0],
+      ['h', 'when %m.connections %m.ops %n%', 'whenAnalogRead', 'A', '>', 50],
+      ['r', 'read from %m.connections', 'analogRead', 'A'],
       ['-'],
       ['r', 'map %n from %n %n to %n %n', 'mapValues', 50, 0, 100, -240, 240],
       ['-'],
       [' ', 'show %n on first display', 'firstSegmentDisplay', 1],
       [' ', 'show %n on second display', 'secondSegmentDisplay', 1],
-      [' ', 'write %n to shift register', 'serialOut', 1],
-      [' ', 'show decimal dot on display', 'segmentDisplayDot'],
-      [' ', 'remove decimal dot on display', 'segmentRemoveDot'],
+      //[' ', 'write %n to shift register', 'serialOut', 1],
+      //[' ', 'show decimal dot on display', 'segmentDisplayDot'],
+      //[' ', 'remove decimal dot on display', 'segmentRemoveDot'],
       ['-'],
-      ['r', 'resistance on analog %n in kΩ', 'calculateResistance', 0],
-      ['r', 'extra-sensitive resistance on analog %n in kΩ', 'calculateSensitiveResistance', 0]
+      [
+        'r', '%m.resistanceSensitivities resistance on %m.resistanceConnections (kΩ)', 
+        'calculateResistance', 'normal', 'A'
+      ]
     ]
   };
 
@@ -701,12 +709,16 @@
       additionalButtons: ['button A', 'button B', 'button C', 'button D'],
       get buttons () { return ['built-in button'].concat(this.additionalButtons); },
       btnStates: ['pressed', 'released'],
-      hwIn: ['rotation knob', 'light sensor', 'temperature sensor'],
+      get connections () { return this.resistanceConnections.concat(this.Voltageconnections); },
+      hwIn: ['dial', 'light sensor', 'temperature sensor'],
       get hwOut () { return this.leds.concat(this.additionalButtons, this.servos); },
       leds: ['led A', 'led B', 'led C', 'led D'],
       outputs: ['on', 'off'],
       ops: ['>', '=', '<'],
-      servos: ['servo A', 'servo B', 'servo C', 'servo D']
+      resistanceConnections: ['A', 'B', 'C', 'D'],
+      resistanceSensitivities: ['normal', 'sensitive'],
+      servos: ['servo A', 'servo B', 'servo C', 'servo D'],
+      voltageConnections: ['EXT1', 'EXT2']
     }
   };
 
