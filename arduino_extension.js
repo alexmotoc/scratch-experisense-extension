@@ -74,13 +74,13 @@
   var inputData = null;
   
   var analogConnectionMapping = {
-    A: 2
-    B: 3
-    C: 4
-    D: 5
-    EXT1: 0
+    A: 2,
+    B: 3,
+    C: 4,
+    D: 5,
+    EXT1: 0,
     EXT2: 1
-  }
+  };
   
   var digitalConnectionMapping = {};
   
