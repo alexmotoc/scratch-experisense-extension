@@ -720,7 +720,7 @@
       additionalButtons: ['button A', 'button B', 'button C', 'button D'],
       get buttons () { return ['built-in button'].concat(this.additionalButtons); },
       btnStates: ['pressed', 'released'],
-      get connections () { return this.resistanceConnections.concat(this.VoltageConnections); },
+      get connections () { return this.resistanceConnections.concat(this.voltageConnections); },
       hwIn: ['dial', 'light sensor', 'temperature sensor'],
       get hwOut () { return this.leds.concat(this.additionalButtons, this.servos); },
       leds: ['led A', 'led B', 'led C', 'led D'],
