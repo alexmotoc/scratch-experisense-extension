@@ -216,11 +216,12 @@
       case ANALOG_MAPPING_RESPONSE:
         for (var pin = 0; pin < analogChannel.length; pin++)
           analogChannel[pin] = 127;
-        for (var i = 1; i < sysexBytesRead; i++)
+        for (var i = 1; i < sysexBytesRead; i++) {
           analogChannel[i-1] = storedInputData[i];
           //initialise callback queue for analog pin number
           console.log('pushing callback ' + (storedInputData[i] - 1));
           analogReadCallbacks[storedInputData[i] - 1] = [];
+        }
         for (var pin = 0; pin < analogChannel.length; pin++) {
           if (analogChannel[pin] != 127) {
             var out = new Uint8Array([
