@@ -73,6 +73,8 @@
   var device = null;
   var inputData = null;
   
+  var analogReadCallbacks = [];
+  
   var analogConnectionMapping = {
     A: 2,
     B: 3,
@@ -216,6 +218,8 @@
           analogChannel[pin] = 127;
         for (var i = 1; i < sysexBytesRead; i++)
           analogChannel[i-1] = storedInputData[i];
+          //initialise callback queue for analog pin number
+          analogReadCallbacks[storedInputData[i]] = [];
         for (var pin = 0; pin < analogChannel.length; pin++) {
           if (analogChannel[pin] != 127) {
             var out = new Uint8Array([
@@ -261,6 +265,10 @@
               break;
             case ANALOG_MESSAGE:
               setAnalogInput(multiByteChannel, (storedInputData[0] << 7) + storedInputData[1]);
+              while (analogReadCallbacks[multiByteChannel].length > 0) {
+                //Call all callback functions with new data
+                analogReadCallbacks[multiByteChannel].pop()((storedInputData[0] << 7) + storedInputData[1]);
+              }
               break;
             case REPORT_VERSION:
               setVersion(storedInputData[1], storedInputData[0]);
@@ -295,19 +303,27 @@
     device.send(msg.buffer);
   }
 
-  function analogRead(pin, extraSensitive) {
+  //TODO: Change argument order
+  function analogRead(pin, callback, enableExtraSensitivity) {
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
       //Set pin mode in case pin was previously used for digital data
       //(converting analog pin number to digital equivalent)
       pinMode(analogChannel.indexOf(pin), ANALOG);
       //MOSFET for setting sensitivity is on same number digital pin
       // (e.g. A5 set by MOSFET on D5)
-      if (extraSensitive) {
+      if (exableExtraSensitivity) {
         //enable extra sensitivity
         digitalWrite(pin, HIGH);
       } else {
         //revert to standard sensitivity
         digitalWrite(pin, LOW);
+      }
+      
+      //TODO: Remove if
+     if (callback) {
+        analogReadCallbacks[pin].push(function (analogInputData) {
+          callback(Math.round((analogInputData[pin] * 100) / 1023));
+        });
       }
       
       return Math.round((analogInputData[pin] * 100) / 1023);
@@ -316,7 +332,6 @@
       for (var i = 0; i < pinModes[ANALOG].length; i++)
         valid.push(i);
       console.log('ERROR: valid analog pins are ' + valid.join(', '));
-      return;
     }
   }
 
@@ -413,11 +428,11 @@
   }
   
   /* Calculate resistance connected to pin using resistive divider (resistance in kΩ) */
-  function readResistiveDivider(pin, resistance) {
+  function readResistiveDivider(pin, resistance, callback) {
     var vIn = 5,
         //analogRead returns value between 0 - 100, map to 0-5V
         //FIXME: UGLY HACK ALERT!!
-        vOut = analogRead(pin, (resistance > 10)) / 20;
+        vOut = analogRead(pin, callback, (resistance > 10)) / 20;
         
     return resistance / (vIn / vOut - 1);
   }
@@ -439,8 +454,8 @@
       digitalWrite(pin, LOW);
   };
 
-  ext.analogRead = function(conn) {
-    return analogRead(analogConnectionMapping[conn]);
+  ext.analogRead = function(conn, callback) {
+    analogRead(analogConnectionMapping[conn], callback);
   };
 
   //FIXME: mapping
@@ -524,10 +539,10 @@
     }
   };
 
-  ext.readInput = function(name) {
+  ext.readInput = function(name, callback) {
     var hw = hwList.search(name);
     if (!hw) return;
-    return analogRead(hw.pin);
+    analogRead(hw.pin, callback);
   };
 
   ext.whenButton = function(btn, state) {
@@ -583,14 +598,13 @@
     digitalWrite(latchPin, HIGH);
   }
   
-  ext.calculateResistance = function(sensitivity, conn) {
+  ext.calculateResistance = function(sensitivity, conn, callback) {
+    
     var pin = analogConnectionMapping[conn];
-    if (conn === 'normal') {
-      //10kΩ resistor
-      return readResistiveDivider(pin, 10);
-    }
-    //10kΩ and 1MΩ resistors connected in series
-    return readResistiveDivider(pin, 1000 + 10);
+    //10kΩ resistor for normal, 10kΩ and 1MΩ resistors connected in series for sensitive
+    var resistanceInKilohms = (conn === 'normal') ? 10 : 1000 + 10;
+
+    readResistiveDivider(pin, resistanceInKilohms, callback);
   }
    
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
@@ -689,7 +703,7 @@
       ['b', '%m.buttons pressed?', 'isButtonPressed', 'button A'],
       ['-'],
       ['h', 'when %m.hwIn %m.ops %n%', 'whenInput', 'dial', '>', 50],
-      ['r', 'read %m.hwIn', 'readInput', 'dial'],
+      ['R', 'read %m.hwIn', 'readInput', 'dial'],
       ['-'],
       //[' ', 'set pin %n %m.outputs', 'digitalWrite', 1, 'on'],
       [' ', 'set %m.voltageConnections to %n%', 'analogWrite', 'EXT1', 100],
@@ -698,7 +712,7 @@
       //['b', 'pin %n on?', 'digitalRead', 1],
       ['-'],
       ['h', 'when %m.connections %m.ops %n%', 'whenAnalogRead', 'A', '>', 50],
-      ['r', 'read from %m.connections', 'analogRead', 'A'],
+      ['R', 'read from %m.connections', 'analogRead', 'A'],
       ['-'],
       ['r', 'map %n from %n %n to %n %n', 'mapValues', 50, 0, 100, -240, 240],
       ['-'],
@@ -708,10 +722,8 @@
       //[' ', 'show decimal dot on display', 'segmentDisplayDot'],
       //[' ', 'remove decimal dot on display', 'segmentRemoveDot'],
       ['-'],
-      [
-        'r', '%m.resistanceSensitivities resistance on %m.resistanceConnections (kΩ)', 
-        'calculateResistance', 'normal', 'A'
-      ]
+      ['R', '%m.resistanceSensitivities resistance on %m.resistanceConnections (kΩ)', 
+          'calculateResistance', 'normal', 'A']
     ]
   };
 
