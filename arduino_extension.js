@@ -267,6 +267,7 @@
               break;
             case ANALOG_MESSAGE:
               setAnalogInput(multiByteChannel, (storedInputData[0] << 7) + storedInputData[1]);
+              console.log(analogReadCallbacks);
               while (analogReadCallbacks[multiByteChannel] !== undefined && 
                   analogReadCallbacks[multiByteChannel].length > 0) {
                 //Call all callback functions with new data
