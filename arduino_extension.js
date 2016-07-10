@@ -462,6 +462,7 @@
   };
 
   ext.analogRead = function(conn, callback) {
+    console.log(callback);
     analogRead(analogConnectionMapping[conn], callback);
   };
 
