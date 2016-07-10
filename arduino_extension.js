@@ -219,7 +219,7 @@
         for (var i = 1; i < sysexBytesRead; i++) {
           analogChannel[i-1] = storedInputData[i];
           //initialise callback queue for analog pin number
-          console.log('pushing callback ' + (storedInputData[i] - 1));
+          console.log('pushing callback ' + storedInputData[i]);
           analogReadCallbacks[storedInputData[i]] = [];
         }
         for (var pin = 0; pin < analogChannel.length; pin++) {
