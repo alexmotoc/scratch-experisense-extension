@@ -311,7 +311,9 @@
 
   //TODO: Change argument order
   function analogRead(pin, callback, enableExtraSensitivity) {
+    console.log('analogRead');
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
+      console.log('analogRead if');
       //Set pin mode in case pin was previously used for digital data
       //(converting analog pin number to digital equivalent)
       pinMode(analogChannel.indexOf(pin), ANALOG);
