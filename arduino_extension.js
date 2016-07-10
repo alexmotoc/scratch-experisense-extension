@@ -325,6 +325,8 @@
         digitalWrite(pin, LOW);
       }
       
+      console.log('analogRead callback');
+      console.log(callback);
       //TODO: Remove if
      if (callback) {
         console.log('pushing callback to pin ' + pin);
