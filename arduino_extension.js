@@ -613,7 +613,7 @@
     
     var pin = analogConnectionMapping[conn];
     //10kΩ resistor for normal, 10kΩ and 1MΩ resistors connected in series for sensitive
-    var resistanceInKilohms = (conn === 'normal') ? 10 : 1000 + 10;
+    var resistanceInKilohms = (sensitivity === 'normal') ? 10 : 1000 + 10;
 
     readResistiveDivider(pin, resistanceInKilohms, callback);
   }
