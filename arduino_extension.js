@@ -326,6 +326,7 @@
       //TODO: Remove if
      if (callback) {
         console.log('pushing callback to pin ' + pin);
+        console.log(digitalInputData);
         analogReadCallbacks[pin].push(function (analogPinData) {
           callback(Math.round((analogPinData * 100) / 1023));
         });
