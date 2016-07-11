@@ -443,7 +443,8 @@
       //Call callback function with calculated resistance
       callback(resistance / (vIn / vOut - 1));
     }
-    analogRead(pin, calculateResistanceCallback, (resistance > 10));
+    //analogRead(pin, calculateResistanceCallback, (resistance > 10));
+    analogRead(pin, calculateResistanceCallback);
   }
 
   ext.whenConnected = function() {
