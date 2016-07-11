@@ -716,7 +716,7 @@
       ['h', 'when %m.hwIn %m.ops %n%', 'whenInput', 'dial', '>', 50],
       ['R', 'read %m.hwIn', 'readInput', 'dial'],
       ['-'],
-      //[' ', 'set pin %n %m.outputs', 'digitalWrite', 1, 'on'],
+      [' ', 'set pin %n %m.outputs', 'digitalWrite', 1, 'on'],
       [' ', 'set %m.voltageConnections to %n%', 'analogWrite', 'EXT1', 100],
       //['-'],
       //['h', 'when pin %n is %m.outputs', 'whenDigitalRead', 1, 'on'],
