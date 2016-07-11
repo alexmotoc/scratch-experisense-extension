@@ -320,6 +320,11 @@
       //MOSFET for setting sensitivity is on same number digital pin
       // (e.g. A5 set by MOSFET on D5)
       digitalWrite(pin, enableExtraSensitivity ? HIGH : LOW);
+      //Wait for digitalWrite to succede and switch MOSFET
+      //FIXME: SUPER UGLY HACK! DO NOT SHIP THIS!!!
+      while (((digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01) !== enableExtraSensitivity) {
+        console.log('waiting for digitalRead');
+      }
       
       console.log('analogRead callback');
       console.log(callback);
