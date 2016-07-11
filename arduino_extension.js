@@ -322,8 +322,9 @@
       digitalWrite(pin, enableExtraSensitivity ? HIGH : LOW);
       //Wait for digitalWrite to succede and switch MOSFET
       //FIXME: SUPER UGLY HACK! DO NOT SHIP THIS!!!
-      while (((digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01) !== enableExtraSensitivity) {
-        console.log('waiting for digitalRead');
+      while (!!((digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01) !== !!enableExtraSensitivity) {
+        console.log('waiting for digitalRead :' + 
+            ((digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01) + ' != ' + exableExtraSensitivity);
       }
       
       console.log('analogRead callback');
