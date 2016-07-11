@@ -319,13 +319,7 @@
       pinMode(analogChannel.indexOf(pin), ANALOG);
       //MOSFET for setting sensitivity is on same number digital pin
       // (e.g. A5 set by MOSFET on D5)
-      /*if (exableExtraSensitivity) {
-        //enable extra sensitivity
-        digitalWrite(pin, HIGH);
-      } else {
-        //revert to standard sensitivity
-        digitalWrite(pin, LOW);
-      }*/
+      digitalWrite(pin, enableExtraSensitivity ? HIGH : LOW);
       
       console.log('analogRead callback');
       console.log(callback);
