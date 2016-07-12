@@ -698,6 +698,7 @@
   var watchdog = null;
   function tryNextDevice() {
     device = potentialDevices.shift();
+    console.log('assigning device' + device);
     if (!device) return;
     //console.log(tryNextDevice.caller);
 
@@ -734,6 +735,7 @@
   }
 
   ext._shutdown = function() {
+    console.log('shutdown');
     // TODO: Bring all pins down
     if (device) device.close();
     if (poller) clearInterval(poller);
