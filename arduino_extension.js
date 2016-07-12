@@ -707,7 +707,7 @@
       }
       
       device.set_receive_handler(function(data) {
-        console.log("set handler");
+        //console.log("set handler");
         var inputData = new Uint8Array(data);
         processInput(inputData);
       });
