@@ -186,8 +186,8 @@
         queryFirmware();
         pinging = true;
       }
-    }, 100);
-  }*/
+    }, 100);*/
+  }
 
   function hasCapability(pin, mode) {
     if (pinModes[mode].indexOf(pin) > -1)
