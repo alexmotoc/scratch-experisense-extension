@@ -153,7 +153,7 @@
   };
 
   function init() {
-
+    console.log('init');
     for (var i = 0; i < 16; i++) {
       var output = new Uint8Array([REPORT_DIGITAL | i, 0x01]);
       device.send(output.buffer);
@@ -278,7 +278,7 @@
           clearTimeout(watchdog);
           watchdog = null;
           connected = true;
-          setTimeout(init, 200);
+          setTimeout(init, 2000);
         }
         pinging = false;
         pingCount = 0;
