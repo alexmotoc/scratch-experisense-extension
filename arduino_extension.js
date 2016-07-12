@@ -141,7 +141,7 @@
       if (lowCallbacks[pin].length > 0 || highCallbacks[pin].length > 0) {
         queryPinState(pin);
       }
-    }
+    },
     pushCallback: function (pin, state, callback) {
       (state === HIGH ? highCallbacks : lowCallbacks)[pin].push(callback);
     }
