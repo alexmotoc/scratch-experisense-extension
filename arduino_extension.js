@@ -133,20 +133,20 @@
     highCallbacks: [],
     processCallbacks: function (pin, state) {
       console.log('processing callbacks');
-      console.log(highCallbacks);
-      console.log(lowCallbacks);
-      var callbacksToProcess = (state === HIGH ? highCallbacks : lowCallbacks)[pin];
+      console.log(pinStates.highCallbacks);
+      console.log(pinStates.lowCallbacks);
+      var callbacksToProcess = pinStates[(state === HIGH ? 'highCallbacks' : 'lowCallbacks')][pin];
       while (callbacksToProcess.length > 0) {
         callback = callbacksToProcess.pop();
         callback();
       }
       //If we're still waiting for a state change, query pin state again
-      if (lowCallbacks[pin].length > 0 || highCallbacks[pin].length > 0) {
+      if (pinStates.lowCallbacks[pin].length > 0 || pinStates.highCallbacks[pin].length > 0) {
         queryPinState(pin);
       }
     },
     pushCallback: function (pin, state, callback) {
-      (state === HIGH ? highCallbacks : lowCallbacks)[pin].push(callback);
+      pinStates[(state === HIGH ? 'highCallbacks' : 'lowCallbacks')][pin].push(callback);
       //Do query
       queryPinState(pin);
     }
