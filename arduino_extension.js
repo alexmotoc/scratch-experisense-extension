@@ -736,7 +736,7 @@
         device.close();
         device = null;
         tryNextDevice();
-      }, 5000);
+      }, 50000);
     });
   }
 
