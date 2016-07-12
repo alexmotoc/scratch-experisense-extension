@@ -167,6 +167,7 @@
     pinger = setInterval(function() {
       if (pinging) {
         if (++pingCount > 6) {
+          console.log('pingCount > 6');
           clearInterval(pinger);
           pinger = null;
           connected = false;
@@ -722,6 +723,7 @@
     }, 1000);
 
     watchdog = setTimeout(function() {
+      console.log('watchdog ran');
       clearInterval(poller);
       poller = null;
       device.set_receive_handler(null);
