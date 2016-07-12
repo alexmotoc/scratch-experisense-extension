@@ -199,7 +199,7 @@
   function queryFirmware() {
     console.log('Querying firmware');
     var output = new Uint8Array([START_SYSEX, QUERY_FIRMWARE, END_SYSEX]);
-    //device.send(output.buffer);
+    device.send(output.buffer);
   }
 
   function queryCapabilities() {
@@ -278,7 +278,7 @@
           clearTimeout(watchdog);
           watchdog = null;
           connected = true;
-          setTimeout(init, 2000);
+          setTimeout(init, 200);
         }
         pinging = false;
         pingCount = 0;
@@ -726,7 +726,7 @@
       
       poller = setInterval(function() {
         queryFirmware();
-      }, 10000);
+      }, 1000);
 
       watchdog = setTimeout(function() {
         console.log('watchdog ran');
@@ -736,7 +736,7 @@
         device.close();
         device = null;
         tryNextDevice();
-      }, 50000);
+      }, 5000);
     });
   }
 
