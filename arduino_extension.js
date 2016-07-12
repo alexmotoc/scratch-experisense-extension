@@ -199,7 +199,7 @@
   function queryFirmware() {
     console.log('Querying firmware');
     var output = new Uint8Array([START_SYSEX, QUERY_FIRMWARE, END_SYSEX]);
-    device.send(output.buffer);
+    //device.send(output.buffer);
   }
 
   function queryCapabilities() {
