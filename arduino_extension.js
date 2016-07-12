@@ -701,7 +701,7 @@
     device = potentialDevices.shift();
     console.log('assigning device' + device);
     if (!device) return;
-    console.log(tryNextDevice.caller);
+    //console.log(tryNextDevice.caller);
 
     device.open({ stopBits: 0, bitRate: 57600, ctsFlowControl: 0 }, function (dev) {
       console.log('Attempting connection with ' + device.id);
