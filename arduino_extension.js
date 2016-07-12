@@ -352,7 +352,7 @@
 
   //TODO: Change argument order
   function analogRead(pin, callback, enableExtraSensitivity) {
-    var digitalPinEquivalent,
+    var digitalPinEquivalent = -1,
         mosfetPinState = enableExtraSensitivity ? HIGH : LOW;
         
     console.log('analogRead');
@@ -360,13 +360,14 @@
       console.log('analogRead if');
       //Set pin mode in case pin was previously used for digital data
       //(converting analog pin number to digital equivalent)
-      digitalPinEquivalent = analogChannel.indexOf(pin);
+      //indexOf() for typed arrays only works in Firefox :(
+      while (analogChannel[++digitalPinEquivalent] !== pin)
+        ;
+
       pinMode(digitalPinEquivalent, ANALOG);
       //MOSFET for setting sensitivity is on same number digital pin
       // (e.g. A5 set by MOSFET on D5)
       digitalWrite(pin, mosfetPinState);
-      //Wait for digitalWrite to succede and switch MOSFET
-      //FIXME: SUPER UGLY HACK! DO NOT SHIP THIS!!!
       console.log('done digital read');
       console.log('analogRead callback');
       console.log(callback);
