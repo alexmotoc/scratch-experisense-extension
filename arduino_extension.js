@@ -164,7 +164,7 @@
     // TEMPORARY WORKAROUND
     // Since _deviceRemoved is not used with Serial devices
     // ping device regularly to check connection
-    /*pinger = setInterval(function() {
+    pinger = setInterval(function() {
       if (pinging) {
         if (++pingCount > 6) {
           console.log('pingCount > 6');
@@ -186,7 +186,7 @@
         queryFirmware();
         pinging = true;
       }
-    }, 100);*/
+    }, 100);
   }
 
   function hasCapability(pin, mode) {
@@ -714,6 +714,7 @@
       
       device.set_receive_handler(function(data) {
         console.log("handler");
+        consold.log(data);
         var inputData = new Uint8Array(data);
         processInput(inputData);
       });
