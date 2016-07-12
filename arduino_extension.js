@@ -132,6 +132,9 @@
     lowCallbacks: [],
     highCallbacks: [],
     processCallbacks: function (pin, state) {
+      console.log('processing callbacks');
+      console.log(highCallbacks);
+      console.log(lowCallbacks);
       var callbacksToProcess = (state === HIGH ? highCallbacks : lowCallbacks)[pin];
       while (callbacksToProcess.length > 0) {
         callback = callbacksToProcess.pop();
@@ -144,6 +147,8 @@
     },
     pushCallback: function (pin, state, callback) {
       (state === HIGH ? highCallbacks : lowCallbacks)[pin].push(callback);
+      //Do query
+      queryPinState(pin);
     }
   };
 
@@ -210,6 +215,7 @@
   }
   
   function queryPinState(pin) {
+    console.log('querying pin state');
     var msg = new Uint8Array([START_SYSEX, PIN_STATE_QUERY, pin, END_SYSEX]);
     device.send(msg.buffer);
   }
@@ -276,6 +282,7 @@
         pingCount = 0;
         break;
       case PIN_STATE_RESPONSE:
+        console.log('pin state response');
         var pin = storedInputData[1],
             state = storedInputData[3];
         pinStates.processCallbacks(pin, state);
