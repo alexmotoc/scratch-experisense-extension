@@ -197,6 +197,7 @@
   }
 
   function queryFirmware() {
+    console.log('Querying firmware');
     var output = new Uint8Array([START_SYSEX, QUERY_FIRMWARE, END_SYSEX]);
     device.send(output.buffer);
   }
@@ -725,7 +726,7 @@
       
       poller = setInterval(function() {
         queryFirmware();
-      }, 1000);
+      }, 10000);
 
       watchdog = setTimeout(function() {
         console.log('watchdog ran');
