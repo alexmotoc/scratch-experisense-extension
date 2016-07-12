@@ -717,21 +717,21 @@
         var inputData = new Uint8Array(data);
         processInput(inputData);
       });
+      
+      poller = setInterval(function() {
+        queryFirmware();
+      }, 1000);
+
+      watchdog = setTimeout(function() {
+        console.log('watchdog ran');
+        clearInterval(poller);
+        poller = null;
+        device.set_receive_handler(null);
+        device.close();
+        device = null;
+        tryNextDevice();
+      }, 5000);
     });
-
-    poller = setInterval(function() {
-      queryFirmware();
-    }, 1000);
-
-    watchdog = setTimeout(function() {
-      console.log('watchdog ran');
-      clearInterval(poller);
-      poller = null;
-      device.set_receive_handler(null);
-      device.close();
-      device = null;
-      tryNextDevice();
-    }, 5000);
   }
 
   ext._shutdown = function() {
