@@ -714,7 +714,7 @@
       
       device.set_receive_handler(function(data) {
         console.log("handler");
-        consold.log(data);
+        console.log(data);
         var inputData = new Uint8Array(data);
         processInput(inputData);
       });
