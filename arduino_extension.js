@@ -27,7 +27,9 @@
     ANALOG_MAPPING_QUERY = 0x69,
     ANALOG_MAPPING_RESPONSE = 0x6A,
     CAPABILITY_QUERY = 0x6B,
-    CAPABILITY_RESPONSE = 0x6C;
+    CAPABILITY_RESPONSE = 0x6C,
+    PIN_STATE_QUERY = 0x6D,
+    PIN_STATE_RESPONSE = 0x6E;
 
   var INPUT = 0x00,
     OUTPUT = 0x01,
@@ -125,6 +127,25 @@
       return null;
     }
   }
+  
+  var pinStates = {
+    lowCallbacks: [],
+    highCallbacks: [],
+    processCallbacks: function (pin, state) {
+      var callbacksToProcess = (state === HIGH ? highCallbacks : lowCallbacks)[pin];
+      while (callbacksToProcess.length > 0) {
+        callback = callbacksToProcess.pop();
+        callback();
+      }
+      //If we're still waiting for a state change, query pin state again
+      if (lowCallbacks[pin].length > 0 || highCallbacks[pin].length > 0) {
+        queryPinState(pin);
+      }
+    }
+    pushCallback: function (pin, state, callback) {
+      (state === HIGH ? highCallbacks : lowCallbacks)[pin].push(callback);
+    }
+  };
 
   function init() {
 
@@ -187,6 +208,11 @@
         START_SYSEX, ANALOG_MAPPING_QUERY, END_SYSEX]);
     device.send(msg.buffer);
   }
+  
+  function queryPinState(pin) {
+    var msg = new Uint8Array([START_SYSEX, PIN_STATE_QUERY, pin, END_SYSEX]);
+    device.send(msg.buffer);
+  }
 
   function setDigitalInputs(portNum, portData) {
     digitalInputData[portNum] = portData;
@@ -209,6 +235,9 @@
             pinModes[storedInputData[i-1]].push(pin);
             i++; //Skip mode resolution
           }
+          //initialise callback queues for pin state 
+          pinStates.lowCallbacks[pin] = [];
+          pinStates.highCallbacks[pin] = [];
           if (i == sysexBytesRead) break;
         }
         queryAnalogMapping();
@@ -245,6 +274,11 @@
         }
         pinging = false;
         pingCount = 0;
+        break;
+      case PIN_STATE_RESPONSE:
+        var pin = storedInputData[1],
+            state = storedInputData[3];
+        pinStates.processCallbacks(pin, state);
         break;
     }
   }
@@ -311,6 +345,7 @@
 
   //TODO: Change argument order
   function analogRead(pin, callback, enableExtraSensitivity) {
+    var mosfetPinState = enableExtraSensitivity ? HIGH : LOW;
     console.log('analogRead');
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
       console.log('analogRead if');
@@ -319,27 +354,20 @@
       pinMode(analogChannel.indexOf(pin), ANALOG);
       //MOSFET for setting sensitivity is on same number digital pin
       // (e.g. A5 set by MOSFET on D5)
-      digitalWrite(pin, enableExtraSensitivity ? HIGH : LOW);
+      digitalWrite(pin, mosfetPinState);
       //Wait for digitalWrite to succede and switch MOSFET
       //FIXME: SUPER UGLY HACK! DO NOT SHIP THIS!!!
       console.log('done digital read');
-      /*while (!!((digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01) !== !!enableExtraSensitivity) {
-        console.log('waiting for digitalRead :' + 
-            ((digitalInputData[pin >> 3] >> (pin & 0x07)) & 0x01) + ' != ' + exableExtraSensitivity);
-      }*/
-      var i = 1000;
-      while (i--)
-        console.log('waiting');
-      console.log('done waiting');
-      
       console.log('analogRead callback');
       console.log(callback);
       //TODO: Remove if
-     if (callback) {
-        console.log('pushing callback to pin ' + pin);
-        console.log(digitalInputData);
-        analogReadCallbacks[pin].push(function (analogPinData) {
-          callback(Math.round((analogPinData * 100) / 1023));
+      if (callback) {
+        pinStates.pushCallback(pin, mosfetPinState, function () {
+          console.log('pushing callback to pin ' + pin);
+          console.log(digitalInputData);
+          analogReadCallbacks[pin].push(function (analogPinData) {
+            callback(Math.round((analogPinData * 100) / 1023));
+          });
         });
       }
       
