@@ -499,6 +499,11 @@
     analogRead(pin, calculateResistanceCallback, (resistance > 10));
     //analogRead(pin, calculateResistanceCallback);
   }
+  
+  function sensitivityToKilohms(sensitivity) {
+    //10kΩ resistor for normal, 10kΩ and 1MΩ resistors connected in series for sensitive
+    return (sensitivity === 'normal') ? 10 : 1000 + 10;
+  }
 
   ext.whenConnected = function() {
     if (notifyConnection) return true;
@@ -517,9 +522,8 @@
       digitalWrite(pin, LOW);
   };
 
-  ext.analogRead = function(conn, callback) {
-    console.log(callback);
-    analogRead(analogConnectionMapping[conn], callback);
+  ext.analogRead = function(sensitivity, conn, callback) {
+    analogRead(analogConnectionMapping[conn], sensitivityToKilohms(sensitivity), callback);
   };
 
   //FIXME: mapping
@@ -663,12 +667,9 @@
   }
   
   ext.calculateResistance = function(sensitivity, conn, callback) {
-    
     var pin = analogConnectionMapping[conn];
-    //10kΩ resistor for normal, 10kΩ and 1MΩ resistors connected in series for sensitive
-    var resistanceInKilohms = (sensitivity === 'normal') ? 10 : 1000 + 10;
-
-    readResistiveDivider(pin, resistanceInKilohms, callback);
+    
+    readResistiveDivider(pin, sensitivityToKilohms(sensitivity), callback);
   }
    
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
@@ -784,7 +785,7 @@
       //['b', 'pin %n on?', 'digitalRead', 1],
       ['-'],
       ['h', 'when %m.connections %m.ops %n%', 'whenAnalogRead', 'A', '>', 50],
-      ['R', 'read from %m.connections', 'analogRead', 'A'],
+      ['R', '%m.resistanceSensitivities read from %m.connections', 'analogRead', 'normal', 'A'],
       ['-'],
       ['r', 'map %n from %n %n to %n %n', 'mapValues', 50, 0, 100, -240, 240],
       ['-'],
