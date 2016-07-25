@@ -353,9 +353,9 @@
   }
 
   //TODO: Change argument order
-  function analogRead(pin, callback, enableExtraSensitivity) {
+  function analogRead(pin, sensitivity, callback) {
     var digitalPinEquivalent = -1,
-        mosfetPinState = enableExtraSensitivity ? HIGH : LOW;
+        mosfetPinState = enableExtraSensitivity === 'sensitive' ? HIGH : LOW;
         
     console.log('analogRead');
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
@@ -486,17 +486,18 @@
   }
   
   /* Calculate resistance connected to pin using resistive divider (resistance in kΩ) */
-  function readResistiveDivider(pin, resistance, callback) {
+  function readResistiveDivider(pin, sensitivity, callback) {
     //analogRead returns value between 0 - 100, map to 0-5V
     //FIXME: UGLY HACK ALERT!!
     function calculateResistanceCallback(pinValue) {
-      var vIn = 5,
+      var resistance = sensitivityToKilohms(sensitivity),
+          vIn = 5,
           vOut = pinValue / 20;
       
       //Call callback function with calculated resistance
       callback(resistance / (vIn / vOut - 1));
     }
-    analogRead(pin, calculateResistanceCallback, (resistance > 10));
+    analogRead(pin, calculateResistanceCallback, sensitivity);
     //analogRead(pin, calculateResistanceCallback);
   }
   
@@ -523,7 +524,7 @@
   };
 
   ext.analogRead = function(sensitivity, conn, callback) {
-    analogRead(analogConnectionMapping[conn], sensitivityToKilohms(sensitivity), callback);
+    analogRead(analogConnectionMapping[conn], sensitivity, callback);
   };
 
   //FIXME: mapping
@@ -669,7 +670,7 @@
   ext.calculateResistance = function(sensitivity, conn, callback) {
     var pin = analogConnectionMapping[conn];
     
-    readResistiveDivider(pin, sensitivityToKilohms(sensitivity), callback);
+    readResistiveDivider(pin, sensitivity, callback);
   }
    
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
