@@ -715,13 +715,13 @@
       }
       
       device.set_receive_handler(function(data) {
-        console.log("handler");
+        //console.log("handler");
         var inputData = new Uint8Array(data);
-        var str = "";
+        /*var str = "";
         for (var i = 0; i < inputData.length; i++) {
           str += inputData[i].toString(16) + ' ';
         }
-        console.log(str);
+        console.log(str);*/
         processInput(inputData);
       });
       
