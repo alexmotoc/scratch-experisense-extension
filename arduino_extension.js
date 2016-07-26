@@ -155,7 +155,7 @@
   var segmentDisplays = {
     firstDisplaySegmentConfigs: [0x7700, 0x1400, 0xB300, 0xB600, 0xD400, 0xE600, 0xE700,
      0x3400, 0xF700, 0xF600],
-    secondDisplaySegmentConfigs: [0x77, 0x41, 0x3B, 0x6B, 0x4D, 0x6E, 0x7E,0x43, 0x7F, 0x6F],
+    secondDisplaySegmentConfigs: [0x77, 0x41, 0x3B, 0x6B, 0x4D, 0x6E, 0x7E, 0x43, 0x7F, 0x6F],
     writeFirstDisplay: function (num) {
       digitalWrite(13, LOW);
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
@@ -205,8 +205,8 @@
           secondDisplayLatchPin = 11,
           latchPin = displayNumber === 1 ? firstDisplayLatchPin : secondDisplayLatchPin;
           
-      digitalWrite(latchPin, LOW);
       digitalWrite(latchPin, HIGH);
+      digitalWrite(latchPin, LOW);
     }
   };
 
