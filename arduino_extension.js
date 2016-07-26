@@ -157,10 +157,10 @@
      0x3400, 0xF700, 0xF600],
     secondDisplaySegmentConfigs: [0x77, 0x41, 0x3B, 0x6B, 0x4D, 0x6E, 0x7E, 0x43, 0x7F, 0x6F],
     writeFirstDisplay: function (num) {
-      digitalWrite(13, LOW);
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
       console.log('writing' + this.firstDisplaySegmentConfigs[num]);
       digitalWrite(13, HIGH);
+      digitalWrite(13, LOW);
     },
     writeSecondDisplay: function (num) {
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
