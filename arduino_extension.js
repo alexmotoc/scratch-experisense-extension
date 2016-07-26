@@ -159,6 +159,7 @@
     writeFirstDisplay: function (num) {
       digitalWrite(13, LOW);
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
+      console.log('writing' + this.firstDisplaySegmentConfigs[num]);
       digitalWrite(13, HIGH);
     },
     writeSecondDisplay: function (num) {
