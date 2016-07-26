@@ -360,16 +360,20 @@
     console.log('analogRead');
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
       console.log('analogRead if');
-      //Set pin mode in case pin was previously used for digital data
-      //(converting analog pin number to digital equivalent)
-      //indexOf() for typed arrays only works in Firefox :(
-      while (analogChannel[++digitalPinEquivalent] !== pin)
-        ;
+      //Don't try switching for voltage inputs - nothing to switch!
+      //FIXME: Make this nicer
+      if (pin !== analogConnectionMapping.EXT2 && pin !== analogConnectionMapping.EXT2) {
+        //Set pin mode in case pin was previously used for digital data
+        //(converting analog pin number to digital equivalent)
+        //indexOf() for typed arrays only works in Firefox :(
+        while (analogChannel[++digitalPinEquivalent] !== pin)
+          ;
 
-      pinMode(digitalPinEquivalent, ANALOG);
-      //MOSFET for setting sensitivity is on same number digital pin
-      // (e.g. A5 set by MOSFET on D5)
-      digitalWrite(pin, mosfetPinState);
+        pinMode(digitalPinEquivalent, ANALOG);
+        //MOSFET for setting sensitivity is on same number digital pin
+        // (e.g. A5 set by MOSFET on D5)
+        digitalWrite(pin, mosfetPinState);
+      }
       console.log('done digital read');
       console.log('analogRead callback');
       console.log(callback);
@@ -610,7 +614,7 @@
   ext.readInput = function(name, callback) {
     var hw = hwList.search(name);
     if (!hw) return;
-    analogRead(hw.pin, callback);
+    analogRead(hw.pin, 'normal', callback);
   };
 
   ext.whenButton = function(btn, state) {
