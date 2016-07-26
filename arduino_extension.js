@@ -151,6 +151,62 @@
       queryPinState(pin);
     }
   };
+  
+  var segmentDisplays = {
+    firstDisplaySegmentConfigs = [0x77, 0x14, 0xB3, 0xB6, 0xD4, 0xE6, 0xE7, 0x34, 0xF7, 0xF6],
+    secondDisplaySegmentConfigs = 
+        [0x7700, 0x4100, 0x3B00, 0x6B00, 0x4D00, 0x6E00, 0x7E00, 0x4300, 0x7F00, 0x6F00],
+    writeFirstDisplay = function (num) {
+      this.shiftOut(this.firstDisplaySegmentConfigs[num]);
+      this.doLatch(1);
+    },
+    writeSecondDisplay = function (num) {
+      this.shiftOut(this.firstDisplaySegmentConfigs[num]);
+      this.doLatch(2);
+    },
+    writeTwoDigitDisplay = function (num) {
+      var firstDigit = num % 10,
+          secondDigit = Math.floor(num / 10) % 10,
+          segmentConfig = this.firstDisplaySegmentConfigs[firstDigit] + 
+            this.secondDisplaySegmentConfigs[secondDigit];
+      
+      this.shiftout(segmentConfig);
+      this.doLatch(1);
+      this.doLatch(2);
+    },
+    shiftOut = function (value) {
+      var mask,
+        dataPin = 10,
+        clockPin = 12;
+      //16-bit output
+      for (mask = 0x1; mask < 0x10000; mask <<= 1) {
+        //Clock low
+        digitalWrite(clockPin, LOW);
+        //Write relevant bit
+        digitalWrite(dataPin, value & mask);
+        //Clock high
+        digitalWrite(clockPin, HIGH);
+      }
+    },
+    /*segmentDisplay = function (segments, latchPin, secondRegister) {
+      var dataPin = 10,
+          clockPin = 12;
+    
+      digitalWrite(latchPin, LOW);
+      //Shift 8 bits to left if necessary to write to second shift register
+      //(for second display)
+      shiftOut(dataPin, clockPin, segments << (secondRegister ? 0 : 8));
+      digitalWrite(latchPin, HIGH);
+    },*/
+    doLatch = function (displayNumber) {
+      var firstDisplayLatchPin = 13,
+          secondDisplayLatchPin = 11,
+          latchPin = displayNumber === 1 ? firstDisplayLatchPin : secondDisplayLatchPin;
+          
+      digitalWrite(latchPin, LOW);
+      digitalWrite(latchPin, HIGH);
+    }
+  };
 
   function init() {
     console.log('init');
@@ -459,42 +515,6 @@
     device.send(msg.buffer);
   }
   
-  function shiftOut(dataPin, clockPin, value) {
-    var mask;
-    //16-bit output
-    for (mask = 0x1; mask < 0x10000; mask <<= 1) {
-      //Clock low
-      digitalWrite(clockPin, LOW);
-      //Write relevant bit
-      digitalWrite(dataPin, value & mask);
-      //Clock high
-      digitalWrite(clockPin, HIGH);
-    }
-  }
-  
-  function segmentDisplay(segments, latchPin, secondRegister) {
-    var dataPin = 10,
-        clockPin = 12;
-        //segmentConfigs = [0xB7, 0x82, 0x3B, 0xAB, 0x8E, 0xAD, 0xBC, 0x87, 0xBF, 0x8F];
-
-  /*
-    //Validating the number is a finite integer
-    if (isNaN(parseInt(number)) || !isFinite(number)) {
-     return false;
-   }
-   //Validating the number is in {0,1,...,9}    
-   if (!(number >= 0 && number <= 9)) {
-     return false;
-   }
-   */
-    
-    digitalWrite(latchPin, LOW);
-    //Shift 8 bits to left if necessary to write to second shift register
-    //(for second display)
-    shiftOut(dataPin, clockPin, segments << (secondRegister ? 0 : 8));
-    digitalWrite(latchPin, HIGH);
-  }
-  
   /* Calculate resistance connected to pin using resistive divider (resistance in kΩ) */
   function readResistiveDivider(pin, sensitivity, callback) {
     //analogRead returns value between 0 - 100, map to 0-5V
@@ -657,29 +677,18 @@
   
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value, callback) {
-    var latchPin = 13,
-        segmentConfigs = [0x77, 0x14, 0xB3, 0xB6, 0xD4, 0xE6, 0xE7, 0x34, 0xF7, 0xF6];
-        
-    segmentDisplay(segmentConfigs[value], latchPin, false);
+    segmentDisplays.writeFirstDisplay(value);
     setTimeout(callback, 5);
   }
   
   ext.secondSegmentDisplay = function (value, callback) {
-    var latchPin = 11,
-        segmentConfigs = [0x77, 0x41, 0x3B, 0x6B, 0x4D, 0x6E, 0x7E, 0x43, 0x7F, 0x6F];
-    //Shift 8 bits to left to write to second shift register (for second display)
-    segmentDisplay(segmentConfigs[value], latchPin, true);
+    segmentDisplays.writeSecondDisplay(value);
     setTimeout(callback, 5);
   }
-   
-  ext.serialOut = function (value) {
-    var dataPin = 10,
-        clockPin = 12,
-        latchPin = 11;
-        
-    digitalWrite(latchPin, LOW);
-    shiftOut(dataPin, clockPin, value);
-    digitalWrite(latchPin, HIGH);
+  
+  ext.twoDigitSegmentDisplay = function (value, callback) {
+    segmentDisplays.writeTwoDigitDisplay(value);
+    setTimeout(callback, 5);
   }
   
   ext.calculateResistance = function (sensitivity, conn, callback) {
@@ -816,9 +825,6 @@
       ['-'],
       ['w', 'show %n on first display', 'firstSegmentDisplay', 1],
       ['w', 'show %n on second display', 'secondSegmentDisplay', 1],
-      //[' ', 'write %n to shift register', 'serialOut', 1],
-      //[' ', 'show decimal dot on display', 'segmentDisplayDot'],
-      //[' ', 'remove decimal dot on display', 'segmentRemoveDot'],
       ['-'],
       ['R', '%m.resistanceSensitivities resistance on %m.resistanceConnections (kΩ)', 
           'calculateResistance', 'normal', 'A'],
