@@ -359,7 +359,7 @@
         switchingEnabled = (pin !== analogConnectionMapping.EXT2 && 
           pin !== analogConnectionMapping.EXT2);
           
-    function pushAnalogReadCallbacks() {
+    function pushAnalogReadCallback() {
      analogReadCallbacks[pin].push(function (analogPinData) {
         callback(Math.round((analogPinData * 100) / 1023));
       });
@@ -388,9 +388,9 @@
       //TODO: Remove if
       if (callback) {
         if (switchingEnabled) {
-          pinStates.pushCallback(pin, mosfetPinState, pushAnalogReadCallbacks);
+          pinStates.pushCallback(pin, mosfetPinState, pushAnalogReadCallback);
         } else {
-          pushAnalogReadCallbacks();
+          pushAnalogReadCallback();
         }
       }
       
