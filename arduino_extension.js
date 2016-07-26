@@ -153,18 +153,18 @@
   };
   
   var segmentDisplays = {
-    firstDisplaySegmentConfigs = [0x77, 0x14, 0xB3, 0xB6, 0xD4, 0xE6, 0xE7, 0x34, 0xF7, 0xF6],
-    secondDisplaySegmentConfigs = 
-        [0x7700, 0x4100, 0x3B00, 0x6B00, 0x4D00, 0x6E00, 0x7E00, 0x4300, 0x7F00, 0x6F00],
-    writeFirstDisplay = function (num) {
+    firstDisplaySegmentConfigs: [0x77, 0x14, 0xB3, 0xB6, 0xD4, 0xE6, 0xE7, 0x34, 0xF7, 0xF6],
+    secondDisplaySegmentConfigs: 0x7700, 0x4100, 0x3B00, 0x6B00, 0x4D00, 0x6E00, 0x7E00,
+      0x4300, 0x7F00, 0x6F00],
+    writeFirstDisplay: function (num) {
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
       this.doLatch(1);
     },
-    writeSecondDisplay = function (num) {
+    writeSecondDisplay: function (num) {
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
       this.doLatch(2);
     },
-    writeTwoDigitDisplay = function (num) {
+    writeTwoDigitDisplay: function (num) {
       var firstDigit = num % 10,
           secondDigit = Math.floor(num / 10) % 10,
           segmentConfig = this.firstDisplaySegmentConfigs[firstDigit] + 
@@ -174,7 +174,7 @@
       this.doLatch(1);
       this.doLatch(2);
     },
-    shiftOut = function (value) {
+    shiftOut: function (value) {
       var mask,
         dataPin = 10,
         clockPin = 12;
@@ -188,7 +188,7 @@
         digitalWrite(clockPin, HIGH);
       }
     },
-    /*segmentDisplay = function (segments, latchPin, secondRegister) {
+    /*segmentDisplay: function (segments, latchPin, secondRegister) {
       var dataPin = 10,
           clockPin = 12;
     
@@ -198,7 +198,7 @@
       shiftOut(dataPin, clockPin, segments << (secondRegister ? 0 : 8));
       digitalWrite(latchPin, HIGH);
     },*/
-    doLatch = function (displayNumber) {
+    doLatch: function (displayNumber) {
       var firstDisplayLatchPin = 13,
           secondDisplayLatchPin = 11,
           latchPin = displayNumber === 1 ? firstDisplayLatchPin : secondDisplayLatchPin;
