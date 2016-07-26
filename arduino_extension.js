@@ -104,8 +104,8 @@
   var hwList =  {
     devices: [
       {name: 'built-in button', pin: 6, val: 0},
-      {name: 'light sensor', pin: 1, val: 0},
-      {name: 'dial', pin: 0, val: 0}
+      {name: 'light sensor', pin: 0, val: 0},
+      {name: 'dial', pin: 1, val: 0}
     ],
     add: function (dev, pin) {
       var device = this.search(dev);
@@ -356,7 +356,7 @@
   function analogRead(pin, sensitivity, callback) {
     var digitalPinEquivalent = -1,
         mosfetPinState = (sensitivity === 'sensitive') ? HIGH : LOW,
-        switchingEnabled = (pin !== analogConnectionMapping.EXT2 && 
+        switchingEnabled = (pin !== analogConnectionMapping.EXT1 && 
           pin !== analogConnectionMapping.EXT2);
           
     function pushAnalogReadCallback() {
