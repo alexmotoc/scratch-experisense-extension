@@ -670,12 +670,12 @@
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value, callback) {
     segmentDisplays.writeFirstDisplay(value);
-    setTimeout(callback, 1000);
+    setTimeout(callback, 250);
   }
   
   ext.secondSegmentDisplay = function (value, callback) {
     segmentDisplays.writeSecondDisplay(value);
-    setTimeout(callback, 1000);
+    setTimeout(callback, 250);
   }
   
   ext.twoDigitSegmentDisplay = function (value, callback) {
