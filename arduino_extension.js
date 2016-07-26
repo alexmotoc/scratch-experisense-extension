@@ -828,7 +828,7 @@
       ['-'],
       ['w', 'show %n on first display', 'firstSegmentDisplay', 1],
       ['w', 'show %n on second display', 'secondSegmentDisplay', 1],
-      ['w', 'show two-digit number %n on displays', 'twoDigitSegmentDisplay', 10],
+      ['w', 'display two-digit number %n', 'twoDigitSegmentDisplay', 10],
       ['-'],
       ['R', '%m.resistanceSensitivities resistance on %m.resistanceConnections (kΩ)', 
           'calculateResistance', 'normal', 'A'],
