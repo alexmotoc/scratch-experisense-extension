@@ -748,7 +748,7 @@
         console.log(str);*/
         processInput(inputData);
       });
-    };
+    });
       
     poller = setInterval(function() {
       queryFirmware();
