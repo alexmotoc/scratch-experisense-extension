@@ -355,14 +355,22 @@
   //TODO: Change argument order
   function analogRead(pin, sensitivity, callback) {
     var digitalPinEquivalent = -1,
-        mosfetPinState = (sensitivity === 'sensitive') ? HIGH : LOW;
+        mosfetPinState = (sensitivity === 'sensitive') ? HIGH : LOW,
+        switchingEnabled = (pin !== analogConnectionMapping.EXT2 && 
+          pin !== analogConnectionMapping.EXT2);
+          
+    function pushAnalogReadCallbacks() {
+     analogReadCallbacks[pin].push(function (analogPinData) {
+        callback(Math.round((analogPinData * 100) / 1023));
+      });
+    }
         
     console.log('analogRead');
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
       console.log('analogRead if');
       //Don't try switching for voltage inputs - nothing to switch!
       //FIXME: Make this nicer
-      if (pin !== analogConnectionMapping.EXT2 && pin !== analogConnectionMapping.EXT2) {
+      if (switchingEnabled) {
         //Set pin mode in case pin was previously used for digital data
         //(converting analog pin number to digital equivalent)
         //indexOf() for typed arrays only works in Firefox :(
@@ -379,13 +387,11 @@
       console.log(callback);
       //TODO: Remove if
       if (callback) {
-        pinStates.pushCallback(pin, mosfetPinState, function () {
-          console.log('pushing callback to pin ' + pin);
-          console.log(digitalInputData);
-          analogReadCallbacks[pin].push(function (analogPinData) {
-            callback(Math.round((analogPinData * 100) / 1023));
-          });
-        });
+        if (switchingEnabled) {
+          pinStates.pushCallback(pin, mosfetPinState, pushAnalogReadCallbacks);
+        } else {
+          pushAnalogReadCallbacks();
+        }
       }
       
       return Math.round((analogInputData[pin] * 100) / 1023);
