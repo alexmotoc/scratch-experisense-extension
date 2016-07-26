@@ -418,14 +418,14 @@
       console.log('analogRead if');
       //Don't try switching for voltage inputs - nothing to switch!
       //FIXME: Make this nicer
-      if (switchingEnabled) {
-        //Set pin mode in case pin was previously used for digital data
-        //(converting analog pin number to digital equivalent)
-        //indexOf() for typed arrays only works in Firefox :(
-        while (analogChannel[++digitalPinEquivalent] !== pin)
-          ;
+      //Set pin mode in case pin was previously used for digital data
+      //(converting analog pin number to digital equivalent)
+      //indexOf() for typed arrays only works in Firefox :(
+      while (analogChannel[++digitalPinEquivalent] !== pin)
+        ;
 
-        pinMode(digitalPinEquivalent, ANALOG);
+      pinMode(digitalPinEquivalent, ANALOG);
+      if (switchingEnabled) {
         //MOSFET for setting sensitivity is on same number digital pin
         // (e.g. A5 set by MOSFET on D5)
         digitalWrite(pin, mosfetPinState);
