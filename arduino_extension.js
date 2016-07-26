@@ -660,7 +660,7 @@
   }
   
   ext.secondSegmentDisplay = function (value) {
-    var latchPin = 11,
+    var latchPin = 13,
         segmentConfigs = [0x77, 0x41, 0x3B, 0x6B, 0x4D, 0x6E, 0x7E, 0x43, 0x7F, 0x6F];
     //Shift 8 bits to left to write to second shift register (for second display)
     segmentDisplay(segmentConfigs[value], latchPin, true);
