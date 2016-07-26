@@ -154,11 +154,10 @@
   
   var segmentDisplays = {
     firstDisplaySegmentConfigs: [0x7700, 0x1400, 0xB300, 0xB600, 0xD400, 0xE600, 0xE700,
-     0x3400, 0xF700, 0xF600],
+      0x3400, 0xF700, 0xF600],
     secondDisplaySegmentConfigs: [0x77, 0x41, 0x3B, 0x6B, 0x4D, 0x6E, 0x7E, 0x43, 0x7F, 0x6F],
     writeFirstDisplay: function (num) {
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
-      console.log('writing' + this.firstDisplaySegmentConfigs[num]);
       this.doLatch(1);
     },
     writeSecondDisplay: function (num) {
@@ -191,16 +190,6 @@
         digitalWrite(clockPin, HIGH);
       }
     },
-    /*segmentDisplay: function (segments, latchPin, secondRegister) {
-      var dataPin = 10,
-          clockPin = 12;
-    
-      digitalWrite(latchPin, LOW);
-      //Shift 8 bits to left if necessary to write to second shift register
-      //(for second display)
-      shiftOut(dataPin, clockPin, segments << (secondRegister ? 0 : 8));
-      digitalWrite(latchPin, HIGH);
-    },*/
     doLatch: function (displayNumber) {
       var firstDisplayLatchPin = 13,
           secondDisplayLatchPin = 11,
@@ -681,12 +670,12 @@
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value, callback) {
     segmentDisplays.writeFirstDisplay(value);
-    setTimeout(callback, 20);
+    setTimeout(callback, 1000);
   }
   
   ext.secondSegmentDisplay = function (value, callback) {
     segmentDisplays.writeSecondDisplay(value);
-    setTimeout(callback, 20);
+    setTimeout(callback, 1000);
   }
   
   ext.twoDigitSegmentDisplay = function (value, callback) {
