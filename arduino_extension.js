@@ -652,18 +652,20 @@
   };
   
   /** Display on 7 segment display **/
-  ext.firstSegmentDisplay = function (value) {
+  ext.firstSegmentDisplay = function (value, callback) {
     var latchPin = 13,
         segmentConfigs = [0x77, 0x14, 0xB3, 0xB6, 0xD4, 0xE6, 0xE7, 0x34, 0xF7, 0xF6];
         
     segmentDisplay(segmentConfigs[value], latchPin, false);
+    setTimeout(callback, 50);
   }
   
-  ext.secondSegmentDisplay = function (value) {
+  ext.secondSegmentDisplay = function (value, callback) {
     var latchPin = 11,
         segmentConfigs = [0x77, 0x41, 0x3B, 0x6B, 0x4D, 0x6E, 0x7E, 0x43, 0x7F, 0x6F];
     //Shift 8 bits to left to write to second shift register (for second display)
     segmentDisplay(segmentConfigs[value], latchPin, true);
+    setTimeout(callback, 50);
   }
    
   ext.serialOut = function (value) {
@@ -799,8 +801,8 @@
       ['-'],
       ['r', 'map %n from %n %n to %n %n', 'mapValues', 50, 0, 100, -240, 240],
       ['-'],
-      [' ', 'show %n on first display', 'firstSegmentDisplay', 1],
-      [' ', 'show %n on second display', 'secondSegmentDisplay', 1],
+      ['w', 'show %n on first display', 'firstSegmentDisplay', 1],
+      ['w', 'show %n on second display', 'secondSegmentDisplay', 1],
       //[' ', 'write %n to shift register', 'serialOut', 1],
       //[' ', 'show decimal dot on display', 'segmentDisplayDot'],
       //[' ', 'remove decimal dot on display', 'segmentRemoveDot'],
