@@ -82,8 +82,8 @@
     B: 3,
     C: 4,
     D: 5,
-    EXT1: 0,
-    EXT2: 1
+    EXT1: 1,
+    EXT2: 0
   };
   
   var digitalConnectionMapping = {};
