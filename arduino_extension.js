@@ -162,7 +162,7 @@
       this.doLatch(1);
     },
     writeSecondDisplay: function (num) {
-      this.shiftOut(this.firstDisplaySegmentConfigs[num]);
+      this.shiftOut(this.secondDisplaySegmentConfigs[num]);
       this.doLatch(2);
     },
     writeTwoDigitDisplay: function (num) {
