@@ -360,7 +360,7 @@
           pin !== analogConnectionMapping.EXT2);
           
     function pushAnalogReadCallback() {
-     analogReadCallbacks[pin].push(function (analogPinData) {
+      analogReadCallbacks[pin].push(function (analogPinData) {
         callback(Math.round((analogPinData * 100) / 1023));
       });
     }
