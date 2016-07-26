@@ -105,7 +105,9 @@
     devices: [
       {name: 'built-in button', pin: 6, val: 0},
       {name: 'light sensor', pin: 0, val: 0},
-      {name: 'dial', pin: 1, val: 0}
+      {name: 'dial', pin: 1, val: 0, scalingFunc = function (value) {
+        return 100 - value;
+      }}
     ],
     add: function (dev, pin) {
       var device = this.search(dev);
@@ -636,7 +638,9 @@
   ext.readInput = function(name, callback) {
     var hw = hwList.search(name);
     if (!hw) return;
-    analogRead(hw.pin, 'normal', callback);
+    analogRead(hw.pin, 'normal', hw.scalingFunc ? function (value) {
+      callback(hw.scalingFunc(value));
+    } : callback);
   };
 
   ext.whenButton = function(btn, state) {
