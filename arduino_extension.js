@@ -157,8 +157,9 @@
     secondDisplaySegmentConfigs: [0x7700, 0x4100, 0x3B00, 0x6B00, 0x4D00, 0x6E00, 0x7E00,
       0x4300, 0x7F00, 0x6F00],
     writeFirstDisplay: function (num) {
+      digitalWrite(13, LOW);
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
-      this.doLatch(1);
+      digitalWrite(13, HIGH);
     },
     writeSecondDisplay: function (num) {
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
