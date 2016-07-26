@@ -105,7 +105,7 @@
     devices: [
       {name: 'built-in button', pin: 6, val: 0},
       {name: 'light sensor', pin: 0, val: 0},
-      {name: 'dial', pin: 1, val: 0, scalingFunc = function (value) {
+      {name: 'dial', pin: 1, val: 0, scalingFunc: function (value) {
         return 100 - value;
       }}
     ],
