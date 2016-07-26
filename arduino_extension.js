@@ -488,7 +488,6 @@
   /* Calculate resistance connected to pin using resistive divider (resistance in kΩ) */
   function readResistiveDivider(pin, sensitivity, callback) {
     //analogRead returns value between 0 - 100, map to 0-5V
-    //FIXME: UGLY HACK ALERT!!
     function calculateResistanceCallback(pinValue) {
       var resistance = sensitivityToKilohms(sensitivity),
           vIn = 5,
@@ -497,7 +496,7 @@
       //Call callback function with calculated resistance
       callback(resistance / (vIn / vOut - 1));
     }
-    analogRead(pin, calculateResistanceCallback, sensitivity);
+    analogRead(pin, sensitivity, calculateResistanceCallback);
     //analogRead(pin, calculateResistanceCallback);
   }
   
