@@ -532,9 +532,13 @@
       digitalWrite(pin, LOW);
   };
 
-  ext.analogRead = function(sensitivity, conn, callback) {
+  ext.analogRead = function (sensitivity, conn, callback) {
     analogRead(analogConnectionMapping[conn], sensitivity, callback);
   };
+  
+  ext.analogReadVoltage = function (conn, callback) {
+    analogRead(analogConnectionMapping[conn], null, callback);
+  }
 
   //FIXME: mapping
   ext.digitalRead = function(pin) {
@@ -678,10 +682,17 @@
     digitalWrite(latchPin, HIGH);
   }
   
-  ext.calculateResistance = function(sensitivity, conn, callback) {
+  ext.calculateResistance = function (sensitivity, conn, callback) {
     var pin = analogConnectionMapping[conn];
     
     readResistiveDivider(pin, sensitivity, callback);
+  }
+  
+  ext.calculateVoltage = function (conn, callback) {
+    analogRead(analogConnectionMapping[conn], null, function (pinValue) {
+      //Scale 0–100 reading to 0–5 V
+      callback(pinValue / 20);
+    });
   }
    
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
@@ -784,8 +795,8 @@
       [' ', 'rotate %m.servos to %n degrees', 'rotateServo', 'servo A', 180],
       [' ', 'rotate %m.servos by %n degrees', 'changeServo', 'servo A', 20],
       ['-'],
-      ['h', 'when %m.buttons is %m.btnStates', 'whenButton', 'button A', 'pressed'],
-      ['b', '%m.buttons pressed?', 'isButtonPressed', 'button A'],
+      ['h', 'when %m.buttons is %m.btnStates', 'whenButton', 'built-in button', 'pressed'],
+      ['b', '%m.buttons pressed?', 'isButtonPressed', 'built-in button'],
       ['-'],
       ['h', 'when %m.hwIn %m.ops %n%', 'whenInput', 'dial', '>', 50],
       ['R', 'read %m.hwIn', 'readInput', 'dial'],
@@ -797,7 +808,9 @@
       //['b', 'pin %n on?', 'digitalRead', 1],
       ['-'],
       ['h', 'when %m.connections %m.ops %n%', 'whenAnalogRead', 'A', '>', 50],
-      ['R', '%m.resistanceSensitivities read from %m.connections', 'analogRead', 'normal', 'A'],
+      ['R', '%m.resistanceSensitivities read from %m.resistanceConnections', 'analogRead',
+         'normal', 'A'],
+      ['R', 'read from %m.voltageConnections', 'analogReadVoltage', 'EXT1'],
       ['-'],
       ['r', 'map %n from %n %n to %n %n', 'mapValues', 50, 0, 100, -240, 240],
       ['-'],
@@ -808,7 +821,8 @@
       //[' ', 'remove decimal dot on display', 'segmentRemoveDot'],
       ['-'],
       ['R', '%m.resistanceSensitivities resistance on %m.resistanceConnections (kΩ)', 
-          'calculateResistance', 'normal', 'A']
+          'calculateResistance', 'normal', 'A'],
+      ['R', 'voltage on %m.voltageConnections (V)', 'calculateVoltage', 'EXT1']
     ]
   };
 
