@@ -355,7 +355,7 @@
   //TODO: Change argument order
   function analogRead(pin, sensitivity, callback) {
     var digitalPinEquivalent = -1,
-        mosfetPinState = enableExtraSensitivity === 'sensitive' ? HIGH : LOW;
+        mosfetPinState = (sensitivity === 'sensitive') ? HIGH : LOW;
         
     console.log('analogRead');
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
