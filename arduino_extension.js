@@ -725,6 +725,7 @@
   function tryNextDevice() {
     device = potentialDevices.shift();
     console.log('assigning device' + device);
+    console.log(device);
     if (!device) return;
     //console.log(tryNextDevice.caller);
 
