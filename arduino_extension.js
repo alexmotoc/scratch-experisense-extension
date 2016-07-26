@@ -171,7 +171,7 @@
           segmentConfig = this.firstDisplaySegmentConfigs[firstDigit] + 
             this.secondDisplaySegmentConfigs[secondDigit];
       
-      this.shiftout(segmentConfig);
+      this.shiftOut(segmentConfig);
       this.doLatch(1);
       this.doLatch(2);
     },
