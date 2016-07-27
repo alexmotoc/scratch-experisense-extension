@@ -667,14 +667,16 @@
   };
 
   ext.whenInput = function(name, op, val) {
-    var hw = hwList.search(name);
+    var scaledValue,
+        hw = hwList.search(name);
     if (!hw) return;
+    scaledValue = hw.scalingFunc ? hw.scalingFunc(analogRead(hw.pin)) : analogRead(hw.pin);
     if (op == '>')
-      return analogRead(hw.pin) > val;
+      return scaledValue > val;
     else if (op == '<')
-      return analogRead(hw.pin) < val;
+      return scaledValue < val;
     else if (op == '=')
-      return analogRead(hw.pin) == val;
+      return scaledValue == val;
     else
       return false;
   };
