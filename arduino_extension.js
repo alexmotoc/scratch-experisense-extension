@@ -458,7 +458,7 @@
     //Return value immediately and pass callback
     return scaleResult(rawAnalogRead(pin, sensitvity, function (value) {
       callback(scaleResult(value));
-    });
+    }));
   }
 
   function digitalRead(pin) {
