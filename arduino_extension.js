@@ -456,7 +456,7 @@
       return Math.round((value * 100) / 1023);
     }
     //Return value immediately and pass callback
-    return scaleResult(rawAnalogRead(pin, sensitvity, function (value) {
+    return scaleResult(rawAnalogRead(pin, sensitivity, function (value) {
       callback(scaleResult(value));
     }));
   }
