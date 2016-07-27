@@ -402,16 +402,14 @@
     device.send(msg.buffer);
   }
 
-  //TODO: Change argument order
-  function analogRead(pin, sensitivity, callback) {
+  function rawAnalogRead(pin, sensitivity, callback) {
     var digitalPinEquivalent = -1,
         mosfetPinState = (sensitivity === 'sensitive') ? HIGH : LOW,
         switchingEnabled = (pin !== analogConnectionMapping.EXT1 && 
           pin !== analogConnectionMapping.EXT2);
           
     function pushAnalogReadCallback() {
-      analogReadCallbacks[pin].push(function (analogPinData) {
-        callback(Math.round((analogPinData * 100) / 1023));
+      analogReadCallbacks[pin].push(callback);
       });
     }
         
@@ -444,13 +442,24 @@
         }
       }
       
-      return Math.round((analogInputData[pin] * 100) / 1023);
+      return analogInputData[pin];
     } else {
       var valid = [];
       for (var i = 0; i < pinModes[ANALOG].length; i++)
         valid.push(i);
       console.log('ERROR: valid analog pins are ' + valid.join(', '));
     }
+  }
+  
+  function analogRead(pin, sensitivity, callback) {
+    function scaleResult(value) {
+      //scale 0-1023 reading to 0-100
+      return Math.round((value * 100) / 1023);
+    }
+    //Return value immediately and pass callback
+    return scaleResult(rawAnalogRead(pin, sensitvity, function (value) {
+      callback(scaleResult(value));
+    });
   }
 
   function digitalRead(pin) {
