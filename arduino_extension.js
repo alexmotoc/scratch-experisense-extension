@@ -24,8 +24,9 @@
         i;
     for (i=0; i<vars.length; i++) {
       pair = vars[i].split('=');
-      if (pair.length > 1 && pair[0]=='lang')
+      if (pair.length > 1 && pair[0]=='lang') {
         lang = pair[1];
+      }
     }
   }());
 
@@ -300,7 +301,10 @@
   }
 
   function processSysexMessage() {
-    var i, pin;
+    var i,
+        pin,
+        state,
+        out;
     switch(storedInputData[0]) {
       case CAPABILITY_RESPONSE:
         for (i = 1, pin = 0; pin < MAX_PINS; pin++) {
@@ -326,8 +330,8 @@
         }
         for (pin = 0; pin < analogChannel.length; pin++) {
           if (analogChannel[pin] != 127) {
-            var out = new Uint8Array([
-                REPORT_ANALOG | analogChannel[pin], 0x01]);
+            out = new Uint8Array([
+              REPORT_ANALOG | analogChannel[pin], 0x01]);
             device.send(out.buffer);
           }
         }
@@ -350,7 +354,7 @@
         break;
       case PIN_STATE_RESPONSE:
         console.log('pin state response');
-        var state = storedInputData[3];
+        state = storedInputData[3];
         pin = storedInputData[1];
         pinStates.processCallbacks(pin, state);
         break;
@@ -358,8 +362,9 @@
   }
 
   function processInput(inputData) {
-    var command;
-    for (var i=0; i < inputData.length; i++) {
+    var command
+        i;
+    for (i = 0; i < inputData.length; i++) {
       if (parsingSysex) {
         if (inputData[i] == END_SYSEX) {
           parsingSysex = false;
@@ -487,6 +492,7 @@
   }
 
   function analogWrite(pin, val) {
+    var msg;
     if (!hasCapability(pin, PWM)) {
       console.log('ERROR: valid PWM pins are ' + pinModes[PWM].join(', '));
       return;
@@ -495,10 +501,10 @@
     else if (val > 100) val = 100;
     val = Math.round((val / 100) * 255);
     pinMode(pin, PWM);
-    var msg = new Uint8Array([
-        ANALOG_MESSAGE | (pin & 0x0F),
-        val & 0x7F,
-        val >> 7]);
+    msg = new Uint8Array([
+      ANALOG_MESSAGE | (pin & 0x0F),
+      val & 0x7F,
+      val >> 7]);
     device.send(msg.buffer);
   }
 
