@@ -362,7 +362,7 @@
   }
 
   function processInput(inputData) {
-    var command
+    var command,
         i;
     for (i = 0; i < inputData.length; i++) {
       if (parsingSysex) {
@@ -570,9 +570,9 @@
 
   //FIXME: mapping
   ext.digitalWrite = function(pin, val) {
-    if (val == menus[lang]['outputs'][0])
+    if (val == menus[lang].outputs[0])
       digitalWrite(pin, HIGH);
-    else if (val == menus[lang]['outputs'][1])
+    else if (val == menus[lang].outputs[1])
       digitalWrite(pin, LOW);
   };
 
@@ -606,9 +606,9 @@
   //FIXME: mapping
   ext.whenDigitalRead = function(pin, val) {
     if (hasCapability(pin, INPUT)) {
-      if (val == menus[lang]['outputs'][0])
+      if (val == menus[lang].outputs[0])
         return digitalRead(pin);
-      else if (val == menus[lang]['outputs'][1])
+      else if (val == menus[lang].outputs[1])
         return digitalRead(pin) === false;
     }
   };
