@@ -88,7 +88,7 @@
   
   var digitalConnectionMapping = {};
   
-  for (conn in analogConnectionMapping) {
+  for (var conn in analogConnectionMapping) {
     if (analogConnectionMapping.hasOwnProperty(conn)) {
       digitalConnectionMapping[conn] = analogConnectionMapping[conn] + 14;
     }
@@ -128,7 +128,7 @@
       }
       return null;
     }
-  }
+  };
   
   var pinStates = {
     lowCallbacks: [],
@@ -560,7 +560,7 @@
   
   ext.analogReadVoltage = function (conn, callback) {
     analogRead(analogConnectionMapping[conn], null, callback);
-  }
+  };
 
   //FIXME: mapping
   ext.digitalRead = function(pin) {
@@ -685,30 +685,30 @@
   ext.firstSegmentDisplay = function (value, callback) {
     segmentDisplays.writeFirstDisplay(value);
     setTimeout(callback, 100);
-  }
+  };
   
   ext.secondSegmentDisplay = function (value, callback) {
     segmentDisplays.writeSecondDisplay(value);
     setTimeout(callback, 100);
-  }
+  };
   
   ext.twoDigitSegmentDisplay = function (value, callback) {
     segmentDisplays.writeTwoDigitDisplay(value);
     setTimeout(callback, 100);
-  }
+  };
   
   ext.calculateResistance = function (sensitivity, conn, callback) {
     var pin = analogConnectionMapping[conn];
     
     readResistiveDivider(pin, sensitivity, callback);
-  }
+  };
   
   ext.calculateVoltage = function (conn, callback) {
     analogRead(analogConnectionMapping[conn], null, function (pinValue) {
       //Scale 0–100 reading to 0–5 V
       callback(pinValue / 20);
     });
-  }
+  };
    
   ext.mapValues = function(val, aMin, aMax, bMin, bMax) {
     var output = (((bMax - bMin) * (val - aMin)) / (aMax - aMin)) + bMin;
