@@ -19,9 +19,11 @@
   (function () {
     // Check for GET param 'lang'
     var paramString = window.location.search.replace(/^\?|\/$/g, ''),
-        vars = paramString.split("&");
-    for (var i=0; i<vars.length; i++) {
-      var pair = vars[i].split('=');
+        vars = paramString.split("&"),
+        pair,
+        i;
+    for (i=0; i<vars.length; i++) {
+      pair = vars[i].split('=');
       if (pair.length > 1 && pair[0]=='lang')
         lang = pair[1];
     }
@@ -85,7 +87,6 @@
   var connected = false;
   var notifyConnection = false;
   var device = null;
-  var inputData = null;
   
   var analogReadCallbacks = [];
   
