@@ -15,6 +15,18 @@
 
 (function(ext) {
 
+  var lang = 'en';
+  (function () {
+    // Check for GET param 'lang'
+    var paramString = window.location.search.replace(/^\?|\/$/g, ''),
+        vars = paramString.split("&");
+    for (var i=0; i<vars.length; i++) {
+      var pair = vars[i].split('=');
+      if (pair.length > 1 && pair[0]=='lang')
+        lang = pair[1];
+    }
+  }());
+
   var PIN_MODE = 0xF4,
     REPORT_DIGITAL = 0xD0,
     REPORT_ANALOG = 0xC0,
@@ -137,7 +149,8 @@
       console.log('processing callbacks');
       console.log(this.highCallbacks);
       console.log(this.lowCallbacks);
-      var callbacksToProcess = this[(state === HIGH ? 'highCallbacks' : 'lowCallbacks')][pin];
+      var callback,
+          callbacksToProcess = this[(state === HIGH ? 'highCallbacks' : 'lowCallbacks')][pin];
       while (callbacksToProcess.length > 0) {
         callback = callbacksToProcess.pop();
         callback();
@@ -286,9 +299,10 @@
   }
 
   function processSysexMessage() {
+    var i, pin;
     switch(storedInputData[0]) {
       case CAPABILITY_RESPONSE:
-        for (var i = 1, pin = 0; pin < MAX_PINS; pin++) {
+        for (i = 1, pin = 0; pin < MAX_PINS; pin++) {
           while (storedInputData[i++] != 0x7F) {
             pinModes[storedInputData[i-1]].push(pin);
             i++; //Skip mode resolution
@@ -301,15 +315,15 @@
         queryAnalogMapping();
         break;
       case ANALOG_MAPPING_RESPONSE:
-        for (var pin = 0; pin < analogChannel.length; pin++)
+        for (pin = 0; pin < analogChannel.length; pin++)
           analogChannel[pin] = 127;
-        for (var i = 1; i < sysexBytesRead; i++) {
+        for (i = 1; i < sysexBytesRead; i++) {
           analogChannel[i-1] = storedInputData[i];
           //initialise callback queue for analog pin number
           console.log('pushing callback ' + storedInputData[i]);
           analogReadCallbacks[storedInputData[i]] = [];
         }
-        for (var pin = 0; pin < analogChannel.length; pin++) {
+        for (pin = 0; pin < analogChannel.length; pin++) {
           if (analogChannel[pin] != 127) {
             var out = new Uint8Array([
                 REPORT_ANALOG | analogChannel[pin], 0x01]);
@@ -335,14 +349,15 @@
         break;
       case PIN_STATE_RESPONSE:
         console.log('pin state response');
-        var pin = storedInputData[1],
-            state = storedInputData[3];
+        var state = storedInputData[3];
+        pin = storedInputData[1];
         pinStates.processCallbacks(pin, state);
         break;
     }
   }
 
   function processInput(inputData) {
+    var command;
     for (var i=0; i < inputData.length; i++) {
       if (parsingSysex) {
         if (inputData[i] == END_SYSEX) {
@@ -787,16 +802,6 @@
     if (poller) clearInterval(poller);
     device = null;
   };
-
-  // Check for GET param 'lang'
-  var paramString = window.location.search.replace(/^\?|\/$/g, '');
-  var vars = paramString.split("&");
-  var lang = 'en';
-  for (var i=0; i<vars.length; i++) {
-    var pair = vars[i].split('=');
-    if (pair.length > 1 && pair[0]=='lang')
-      lang = pair[1];
-  }
 
   var blocks = {
     en: [
