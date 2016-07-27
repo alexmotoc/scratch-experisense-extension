@@ -410,7 +410,6 @@
           
     function pushAnalogReadCallback() {
       analogReadCallbacks[pin].push(callback);
-      });
     }
         
     console.log('analogRead');
