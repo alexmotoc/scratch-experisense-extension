@@ -428,7 +428,7 @@
   }
   
   function scaleValue(value) {
-    return Math.round((value / 1024) * 100;
+    return Math.round((value / 1024) * 100);
   }
 
   function pinMode(pin, mode) {
