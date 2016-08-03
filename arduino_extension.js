@@ -335,9 +335,6 @@
           console.log('pushing callback ' + storedInputData[i]);
           analogReadCallbacks[storedInputData[i]] = [];
         }
-        //Clear displays once we're connected
-        segmentDisplays.clearDisplays();
-        
         for (pin = 0; pin < analogChannel.length; pin++) {
           if (analogChannel[pin] != 127) {
             out = new Uint8Array([
