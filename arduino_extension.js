@@ -121,6 +121,7 @@
     devices: [
       {name: 'built-in button', pin: 6, val: 0},
       {name: 'light sensor', pin: 0, val: 0, scalingFunc: function (value) {
+        value = 1023 - value;
         return (value < 25) ? 100 - value : Math.round((1023 - value) * (75 / 998));
       }},
       {name: 'dial', pin: 1, val: 0, scalingFunc: function (value) {
