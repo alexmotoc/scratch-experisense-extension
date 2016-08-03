@@ -120,9 +120,11 @@
   var hwList =  {
     devices: [
       {name: 'built-in button', pin: 6, val: 0},
-      {name: 'light sensor', pin: 0, val: 0},
+      {name: 'light sensor', pin: 0, val: 0, scalingFunc: function (value) {
+        return (value < 25) ? 100 - value : Math.round((1023 - value) * (75 / 998));
+      }},
       {name: 'dial', pin: 1, val: 0, scalingFunc: function (value) {
-        return 100 - value;
+        return 100 - scaleValue(value);
       }}
     ],
     add: function (dev, pin) {
@@ -424,6 +426,10 @@
       }
     }
   }
+  
+  function scaleValue(value) {
+    return Math.round((value / 1024) * 100;
+  }
 
   function pinMode(pin, mode) {
     var msg = new Uint8Array([PIN_MODE, pin, mode]);
@@ -479,13 +485,9 @@
   }
   
   function analogRead(pin, sensitivity, callback) {
-    function scaleResult(value) {
-      //scale 0-1023 reading to 0-100
-      return Math.round((value * 100) / 1023);
-    }
-    //Return value immediately and pass callback
-    return scaleResult(rawAnalogRead(pin, sensitivity, function (value) {
-      callback(scaleResult(value));
+    //Return value immediately and also pass callback
+    return scaleValue(rawAnalogRead(pin, sensitivity, function (value) {
+      callback(scaleValue(value));
     }));
   }
 
@@ -673,11 +675,13 @@
   };
 
   ext.readInput = function(name, callback) {
-    var hw = hwList.search(name);
+    var hw = hwList.search(name),
+        scalingFunc;
     if (!hw) return;
-    analogRead(hw.pin, 'normal', hw.scalingFunc ? function (value) {
-      callback(hw.scalingFunc(value));
-    } : callback);
+    scalingFunc = hw.scalingFunc || scaleValue;
+    rawAnalogRead(hw.pin, 'normal', function (value) {
+      callback(scalingFunc(value));
+    });
   };
 
   ext.whenButton = function(btn, state) {
