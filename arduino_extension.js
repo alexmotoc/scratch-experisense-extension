@@ -66,7 +66,9 @@
 
   var MAX_DATA_BYTES = 4096;
   var MAX_PINS = 128;
-
+  
+  var DISPLAY_WRITE_DELAY = 100;
+    
   var parsingSysex = false,
     waitForData = 0,
     executeMultiByteCommand = 0,
@@ -173,6 +175,11 @@
     firstDisplaySegmentConfigs: [0x7700, 0x1400, 0xB300, 0xB600, 0xD400, 0xE600, 0xE700,
       0x3400, 0xF700, 0xF600],
     secondDisplaySegmentConfigs: [0x77, 0x41, 0x3B, 0x6B, 0x4D, 0x6E, 0x7E, 0x43, 0x7F, 0x6F],
+    clearDisplays: function () {
+      this.shiftOut(0);
+      this.doLatch(1);
+      this.doLatch(2);
+    },
     writeFirstDisplay: function (num) {
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
       this.doLatch(1);
@@ -328,6 +335,9 @@
           console.log('pushing callback ' + storedInputData[i]);
           analogReadCallbacks[storedInputData[i]] = [];
         }
+        //Clear displays once we're connected
+        segmentDisplays.clearDisplays();
+        
         for (pin = 0; pin < analogChannel.length; pin++) {
           if (analogChannel[pin] != 127) {
             out = new Uint8Array([
@@ -706,18 +716,23 @@
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value, callback) {
     segmentDisplays.writeFirstDisplay(value);
-    setTimeout(callback, 100);
+    setTimeout(callback, DISPLAY_WRITE_DELAY);
   };
   
   ext.secondSegmentDisplay = function (value, callback) {
     segmentDisplays.writeSecondDisplay(value);
-    setTimeout(callback, 100);
+    setTimeout(callback, DISPLAY_WRITE_DELAY);
   };
   
   ext.twoDigitSegmentDisplay = function (value, callback) {
     segmentDisplays.writeTwoDigitDisplay(value);
-    setTimeout(callback, 100);
+    setTimeout(callback, DISPLAY_WRITE_DELAY);
   };
+  
+  ext.clearDisplays = function (callback) {
+    segmentDisplays.clearDisplays();
+    setTimeout(callback, DISPLAY_WRITE_DELAY);
+  }
   
   ext.calculateResistance = function (sensitivity, conn, callback) {
     var pin = analogConnectionMapping[conn];
@@ -845,6 +860,7 @@
       ['w', 'show %n on first display', 'firstSegmentDisplay', 1],
       ['w', 'show %n on second display', 'secondSegmentDisplay', 1],
       ['w', 'display two-digit number %n', 'twoDigitSegmentDisplay', 10],
+      ['w', 'clear displays', 'clearDisplays'],
       ['-'],
       ['R', '%m.resistanceSensitivities resistance on %m.resistanceConnections (kΩ)', 
           'calculateResistance', 'normal', 'A'],
