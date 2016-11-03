@@ -88,7 +88,6 @@
     minorVersion = 0;
 
   var connected = false;
-  var notifyConnection = false;
   var device = null;
   
   var analogReadCallbacks = [];
@@ -117,36 +116,15 @@
   var pingCount = 0;
   var pinger = null;
 
-  var hwList =  {
-    devices: [
-      {name: 'built-in button', pin: 6, val: 0},
-      {name: 'light sensor', pin: 0, val: 0, scalingFunc: function (value) {
-        value = 1023 - value;
-        return (value < 25) ? 100 - value : Math.round((1023 - value) * (75 / 998));
-      }},
-      {name: 'dial', pin: 1, val: 0, scalingFunc: function (value) {
-        return 100 - scaleValue(value);
-      }}
-    ],
-    add: function (dev, pin) {
-      var device = this.search(dev);
-      if (!device) {
-        device = {name: dev, pin: pin, val: 0};
-        this.devices.push(device);
-      } else {
-        device.pin = pin;
-        device.val = 0;
-      }
-    },
-    search: function (dev) {
-      var i;
-      for (i=0; i<this.devices.length; i++) {
-        if (this.devices[i].name === dev) {
-          return this.devices[i];
-        }
-      }
-      return null;
-    }
+  var hwList = {
+    'built-in button': {pin: 6, val: 0},
+    'light sensor': {pin: 0, val: 0, scalingFunc: function (value) {
+      value = 1023 - value;
+      return (value < 25) ? 100 - value : Math.round((1023 - value) * (75 / 998));
+    }},
+    'dial': {pin: 1, val: 0, scalingFunc: function (value) {
+      return 100 - scaleValue(value);
+    }}
   };
   
   var pinStates = {
@@ -345,10 +323,6 @@
             device.send(out.buffer);
           }
         }
-        notifyConnection = true;
-        setTimeout(function() {
-          notifyConnection = false;
-        }, 100);
         break;
       case QUERY_FIRMWARE:
         if (!connected) {
@@ -535,19 +509,6 @@
         digitalOutputData[portNum] >> 0x07]);
     device.send(msg.buffer);
   }
-
-  function rotateServo(pin, deg) {
-    if (!hasCapability(pin, SERVO)) {
-      console.log('ERROR: valid servo pins are ' + pinModes[SERVO].join(', '));
-      return;
-    }
-    pinMode(pin, SERVO);
-    var msg = new Uint8Array([
-        ANALOG_MESSAGE | (pin & 0x0F),
-        deg & 0x7F,
-        deg >> 0x07]);
-    device.send(msg.buffer);
-  }
   
   /* Calculate resistance connected to pin using resistive divider (resistance in kΩ) */
   function readResistiveDivider(pin, sensitivity, callback) {
@@ -568,11 +529,6 @@
     //10kΩ resistor for normal, 10kΩ and 1MΩ resistors connected in series for sensitive
     return (sensitivity === 'normal') ? 10 : 1000 + 10;
   }
-
-  ext.whenConnected = function() {
-    if (notifyConnection) return true;
-    return false;
-  };
 
   ext.analogWrite = function(conn, val) {
     analogWrite(analogConnectionMapping[conn], val);
@@ -623,60 +579,8 @@
     }
   };
 
-  ext.connectHW = function(hw, conn) {
-    hwList.add(hw, digitalConnectionMapping[conn]);
-  };
-
-  ext.rotateServo = function(servo, deg) {
-    var hw = hwList.search(servo);
-    if (!hw) return;
-    if (deg < 0) deg = 0;
-    else if (deg > 180) deg = 180;
-    rotateServo(hw.pin, deg);
-    hw.val = deg;
-  };
-
-  ext.changeServo = function(servo, change) {
-    var hw = hwList.search(servo);
-    if (!hw) return;
-    var deg = hw.val + change;
-    if (deg < 0) deg = 0;
-    else if (deg > 180) deg = 180;
-    rotateServo(hw.pin, deg);
-    hw.val = deg;
-  };
-
-  ext.setLED = function(led, val) {
-    var hw = hwList.search(led);
-    if (!hw) return;
-    analogWrite(hw.pin, val);
-    hw.val = val;
-  };
-
-  ext.changeLED = function(led, val) {
-    var hw = hwList.search(led);
-    if (!hw) return;
-    var b = hw.val + val;
-    if (b < 0) b = 0;
-    else if (b > 100) b = 100;
-    analogWrite(hw.pin, b);
-    hw.val = b;
-  };
-
-  ext.digitalLED = function(led, val) {
-    var hw = hwList.search(led);
-    if (!hw) return;
-    if (val == 'on') {
-      digitalWrite(hw.pin, HIGH);
-      hw.val = 255;
-    } else if (val == 'off') {
-      digitalWrite(hw.pin, LOW);
-      hw.val = 0;
-    }
-  };
-
   ext.readInput = function(name, callback) {
-    var hw = hwList.search(name),
+    var hw = hwList[name],
         scalingFunc;
     if (!hw) return;
     scalingFunc = hw.scalingFunc || scaleValue;
@@ -686,23 +590,23 @@
   };
 
   ext.whenButton = function(btn, state) {
-    var hw = hwList.search(btn);
-    if (!hw) return;
+    var pin = analogConnectionMapping[btn] || hwList[btn].pin;
+    if (pin === undefined) return;
     if (state === 'pressed')
-      return digitalRead(hw.pin);
+      return digitalRead(pin);
     else if (state === 'released')
-      return !digitalRead(hw.pin);
+      return !digitalRead(pin);
   };
 
   ext.isButtonPressed = function(btn) {
-    var hw = hwList.search(btn);
-    if (!hw) return;
-    return digitalRead(hw.pin);
+    var pin = analogConnectionMapping[btn] || hwList[btn].pin;
+    if (pin === undefined) return;
+    return digitalRead(pin);
   };
 
   ext.whenInput = function(name, op, val) {
     var scaledValue,
-        hw = hwList.search(name);
+        hw = hwList[name];
     if (!hw) return;
     scaledValue = hw.scalingFunc ? hw.scalingFunc(analogRead(hw.pin)) : analogRead(hw.pin);
     if (op == '>')
@@ -829,17 +733,6 @@
 
   var blocks = {
     en: [
-      ['h', 'when device is connected', 'whenConnected'],
-      [' ', 'connect %m.hwOut to %m.voltageConnections', 'connectHW', 'led A', 'EXT1'],
-      [' ', 'connect %m.hwIn to %m.resistanceConnections', 'connectHW', 'dial', 'A'],
-      ['-'],
-      [' ', 'set %m.leds %m.outputs', 'digitalLED', 'led A', 'on'],
-      [' ', 'set %m.leds brightness to %n%', 'setLED', 'led A', 100],
-      [' ', 'change %m.leds brightness by %n%', 'changeLED', 'led A', 20],
-      ['-'],
-      [' ', 'rotate %m.servos to %n degrees', 'rotateServo', 'servo A', 180],
-      [' ', 'rotate %m.servos by %n degrees', 'changeServo', 'servo A', 20],
-      ['-'],
       ['h', 'when %m.buttons is %m.btnStates', 'whenButton', 'built-in button', 'pressed'],
       ['b', '%m.buttons pressed?', 'isButtonPressed', 'built-in button'],
       ['-'],
@@ -848,9 +741,6 @@
       ['-'],
       [' ', 'set pin %n %m.outputs', 'digitalWrite', 1, 'on'],
       [' ', 'set %m.voltageConnections to %n%', 'analogWrite', 'EXT1', 100],
-      //['-'],
-      //['h', 'when pin %n is %m.outputs', 'whenDigitalRead', 1, 'on'],
-      //['b', 'pin %n on?', 'digitalRead', 1],
       ['-'],
       ['h', 'when %m.connections %m.ops %n%', 'whenAnalogRead', 'A', '>', 50],
       ['R', '%m.resistanceSensitivities read from %m.resistanceConnections', 'analogRead',
@@ -872,18 +762,14 @@
 
   var menus = {
     en: {
-      additionalButtons: ['button A', 'button B', 'button C', 'button D'],
-      get buttons() { return ['built-in button'].concat(this.additionalButtons); },
+      get buttons() { return ['built-in button'].concat(this.resistanceConnections); },
       btnStates: ['pressed', 'released'],
       get connections() { return this.resistanceConnections.concat(this.voltageConnections); },
-      hwIn: ['dial', 'light sensor', 'temperature sensor'],
-      get hwOut() { return this.leds.concat(this.additionalButtons, this.servos); },
-      leds: ['led A', 'led B', 'led C', 'led D'],
+      hwIn: Object.keys(hwList),
       outputs: ['on', 'off'],
       ops: ['>', '=', '<'],
       resistanceConnections: ['A', 'B', 'C', 'D'],
       resistanceSensitivities: ['normal', 'sensitive'],
-      servos: ['servo A', 'servo B', 'servo C', 'servo D'],
       voltageConnections: ['EXT1', 'EXT2']
     }
   };
