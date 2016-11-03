@@ -174,7 +174,7 @@
       var firstDisplayDigit = Math.floor(num / 10) % 10,
           //units on second display
           secondDisplayDigit = num % 10,
-          segmentConfig = this.firstDisplaySegmentConfigs[firstDisplayDigit] + 
+          segmentConfig = this.firstDisplaySegmentConfigs[firstDisplayDigit] |
             this.secondDisplaySegmentConfigs[secondDisplayDigit];
       
       this.shiftOut(segmentConfig);
