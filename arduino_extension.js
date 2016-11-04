@@ -173,7 +173,7 @@
           setTimeout(function () {
             that.clearDisplays();
             setTimeout(function () {
-              that.writeTwoDigitDisplays(88);
+              that.writeTwoDigitDisplay(88);
             }, flashSpeed);
           }, flashSpeed);
         }, flashSpeed);
