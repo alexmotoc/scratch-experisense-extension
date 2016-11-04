@@ -165,7 +165,7 @@
     test: function() {
       //Flash 88 on screen
       var that = this,
-          flashSpeed = 100;
+          flashSpeed = 1000;
       setTimeout(function () {
         that.clearDisplays()
         setTimeout(function () {
