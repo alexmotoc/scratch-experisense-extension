@@ -162,6 +162,23 @@
       this.latch(1);
       this.latch(2);
     },
+    test: function() {
+      //Flash 88 on screen
+      var that = this,
+          flashSpeed = 100;
+      setTimeout(function () {
+        that.clearDisplays()
+        setTimeout(function () {
+          that.writeTwoDigitDisplay(88);
+          setTimeout(function () {
+            that.clearDisplays();
+            setTimeout(function () {
+              that.writeTwoDigitDisplays(88);
+            }, flashSpeed);
+          }, flashSpeed);
+        }, flashSpeed);
+      }, 0);
+    },
     writeFirstDisplay: function (num) {
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
       this.latch(1);
@@ -268,6 +285,8 @@
     }
 
     queryCapabilities();
+    
+    segmentDisplays.test();
 
     // TEMPORARY WORKAROUND
     // Since _deviceRemoved is not used with Serial devices
