@@ -165,7 +165,7 @@
     test: function() {
       //Flash 88 on screen
       var that = this,
-          flashSpeed = 1000;
+          flashSpeed = 500;
       setTimeout(function () {
         that.clearDisplays()
         setTimeout(function () {
@@ -285,8 +285,6 @@
     }
 
     queryCapabilities();
-    
-    segmentDisplays.test();
 
     // TEMPORARY WORKAROUND
     // Since _deviceRemoved is not used with Serial devices
@@ -397,6 +395,8 @@
             device.send(out.buffer);
           }
         }
+        //All setup should be done – time to test displays
+        segmentDisplays.test();
         break;
       case QUERY_FIRMWARE:
         if (!connected) {
