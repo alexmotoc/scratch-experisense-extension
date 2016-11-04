@@ -486,10 +486,13 @@
     //TODO: nicer way of doing this
     device.send(pinModeMsg.buffer);
     //if an analog pin
-    if (digitalConnectionMapping.indexOf(pin) !== -1) {
-      //Switch on analog reporting if in ANALOG mode, else off
-      reportAnalogMsg = new Uint8Array([REPORT_ANALOG, mode === ANALOG ? 0x01 : 0x00]);
-      device.send(reportAnalogMsg.buffer);
+    for (var conn in digitalConnectionMapping) {
+      if (digitalConnectionMapping[conn] === pin) {
+        //Switch on analog reporting if in ANALOG mode, else off
+        reportAnalogMsg = new Uint8Array([REPORT_ANALOG, mode === ANALOG ? 0x01 : 0x00]);
+        device.send(reportAnalogMsg.buffer);
+        break;
+     }
     }
   }
 
