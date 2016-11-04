@@ -159,16 +159,16 @@
     secondDisplaySegmentConfigs: [0x77, 0x41, 0x3B, 0x6B, 0x4D, 0x6E, 0x7E, 0x43, 0x7F, 0x6F],
     clearDisplays: function () {
       this.shiftOut(0);
-      this.doLatch(1);
-      this.doLatch(2);
+      this.latch(1);
+      this.latch(2);
     },
     writeFirstDisplay: function (num) {
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
-      this.doLatch(1);
+      this.latch(1);
     },
     writeSecondDisplay: function (num) {
       this.shiftOut(this.secondDisplaySegmentConfigs[num]);
-      this.doLatch(2);
+      this.latch(2);
     },
     writeTwoDigitDisplay: function (num) {
       //tens on first display
@@ -179,8 +179,8 @@
             this.secondDisplaySegmentConfigs[secondDisplayDigit];
       
       this.shiftOut(segmentConfig);
-      this.doLatch(1);
-      this.doLatch(2);
+      this.latch(1);
+      this.latch(2);
     },
     shiftOut: function (value) {
       var mask,
@@ -196,7 +196,7 @@
         digitalWrite(clockPin, HIGH);
       }
     },
-    doLatch: function (displayNumber) {
+    latch: function (displayNumber) {
       var firstDisplayLatchPin = 13,
           secondDisplayLatchPin = 11,
           latchPin = displayNumber === 1 ? firstDisplayLatchPin : secondDisplayLatchPin;
@@ -205,6 +205,60 @@
       digitalWrite(latchPin, LOW);
     }
   };
+  
+  var servos = {
+    currentPositions: {},
+    calculateRotationPosition: function (conn, changeInDegrees) {
+      //If no position recorded, servo hasn't moved yet – assume starting pos of 0
+      var currentPosition = this.currentPositions[conn] || 0,
+          newPosition = currentPosition + changeInDegrees;
+      
+      return this.constrainRotation(newPosition)
+    },
+    constrainRotation: function (rotationInDegrees) {
+      //Constrain to 0–180 degrees (range of servo)
+      return Math.min(Math.max(rotationInDegrees, 0), 180)
+    },
+    rotateBy: function (conn, deg) {
+      var pin = digitalConnectionMapping[conn],
+          newPosition = this.calculateRotationPosition(conn, deg);
+          
+      this.currentPositions[conn] = newPosition;
+      this.writeOut(pin, newPosition);
+    }
+    rotateTo: function (conn, deg) {
+      var pin = digitalConnectionMapping[conn],
+          newPosition = this.constrainRotation(deg);
+      
+      this.currentPositions[conn] = newPosition;
+      this.writeOut(pin, newPosition);
+    },
+    writeOut: function (pin, deg) {
+      if (!hasCapability(pin, SERVO)) {
+        console.log('ERROR: valid servo pins are ' + pinModes[SERVO].join(', '));
+        return;
+      }
+      pinMode(pin, SERVO);
+      var msg = new Uint8Array([
+        ANALOG_MESSAGE | (pin & 0x0F),
+        deg & 0x7F,
+        deg >> 0x07]);
+      device.send(msg.buffer);
+    }
+  };
+  
+  function analogPinNumberToDigital(analogPin) {
+    //Set pin mode in case pin was previously used for digital data
+    //(converting analog pin number to digital equivalent)
+    //indexOf() for typed arrays only works in Firefox :(
+    var digitalPinEquivalent = -1;
+    if (analogPin >= analogChannel.size) {
+      throw new RangeError("Attempted to convert non-existant analog pin to digital equivalent");
+    }
+    while (analogChannel[++digitalPinEquivalent] !== analogPin)
+        ;
+    return digitalPinEquivalent;
+  }
 
   function init() {
     console.log('init');
@@ -413,7 +467,7 @@
   }
 
   function rawAnalogRead(pin, sensitivity, callback) {
-    var digitalPinEquivalent = -1,
+    var digitalPinEquivalent = analogPinNumberToDigital(pin),
         mosfetPinState = (sensitivity === 'sensitive') ? HIGH : LOW,
         switchingEnabled = (pin !== analogConnectionMapping.EXT1 && 
           pin !== analogConnectionMapping.EXT2);
@@ -425,15 +479,9 @@
     console.log('analogRead');
     if (pin >= 0 && pin < pinModes[ANALOG].length) {
       console.log('analogRead if');
-      //Don't try switching for voltage inputs - nothing to switch!
-      //FIXME: Make this nicer
-      //Set pin mode in case pin was previously used for digital data
-      //(converting analog pin number to digital equivalent)
-      //indexOf() for typed arrays only works in Firefox :(
-      while (analogChannel[++digitalPinEquivalent] !== pin)
-        ;
 
       pinMode(digitalPinEquivalent, ANALOG);
+      //Don't try switching for voltage inputs - nothing to switch!
       if (switchingEnabled) {
         //MOSFET for setting sensitivity is on same number digital pin
         // (e.g. A5 set by MOSFET on D5)
@@ -620,6 +668,14 @@
       return false;
   };
   
+  ext.rotateServo = function (conn, deg) {
+    servos.rotateTo(conn, deg);
+  };
+  
+  ext.changeServo = function (conn, deg) {
+    servos.rotateBy(conn, deg);
+  };
+  
   /** Display on 7 segment display **/
   ext.firstSegmentDisplay = function (value, callback) {
     segmentDisplays.writeFirstDisplay(value);
@@ -742,6 +798,9 @@
       ['-'],
       [' ', 'set pin %n %m.outputs', 'digitalWrite', 1, 'on'],
       [' ', 'set %m.voltageConnections to %n%', 'analogWrite', 'EXT1', 100],
+      ['-'],
+      [' ', 'rotate servo on %m.outputs to %n degrees', 'rotateServo', 'EXT1', 180],
+      [' ', 'rotate servo on %m.outputs by %n degrees', 'changeServo', 'EXT2', 20],
       ['-'],
       ['h', 'when %m.connections %m.ops %n%', 'whenAnalogRead', 'A', '>', 50],
       ['R', '%m.resistanceSensitivities read from %m.resistanceConnections', 'analogRead',
