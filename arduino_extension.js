@@ -118,12 +118,12 @@
   var pinger = null;
 
   var hwList = {
-    'built-in button': {pin: 6, val: 0},
-    'light sensor': {pin: 0, val: 0, scalingFunc: function (value) {
+    'built-in button': {pin: 6},
+    'light sensor': {pin: 0, scalingFunc: function (value) {
       value = 1023 - value;
       return (value < 25) ? 100 - value : Math.round((1023 - value) * (75 / 998));
     }},
-    'dial': {pin: 1, val: 0, scalingFunc: function (value) {
+    'dial': {pin: 1, scalingFunc: function (value) {
       return 100 - scaleValue(value);
     }}
   };
