@@ -583,25 +583,12 @@
     analogWrite(analogConnectionMapping[conn], val);
   };
 
-  //FIXME: mapping
-  ext.digitalWrite = function(pin, val) {
-    if (val == menus[lang].outputs[0])
-      digitalWrite(pin, HIGH);
-    else if (val == menus[lang].outputs[1])
-      digitalWrite(pin, LOW);
-  };
-
   ext.analogRead = function (sensitivity, conn, callback) {
     analogRead(analogConnectionMapping[conn], sensitivity, callback);
   };
   
   ext.analogReadVoltage = function (conn, callback) {
     analogRead(analogConnectionMapping[conn], null, callback);
-  };
-
-  //FIXME: mapping
-  ext.digitalRead = function(pin) {
-    return digitalRead(pin);
   };
 
   ext.whenAnalogRead = function(conn, op, val) {
@@ -615,16 +602,6 @@
         return analogRead(pin) == val;
       else
         return false;
-    }
-  };
-
-  //FIXME: mapping
-  ext.whenDigitalRead = function(pin, val) {
-    if (hasCapability(pin, INPUT)) {
-      if (val == menus[lang].outputs[0])
-        return digitalRead(pin);
-      else if (val == menus[lang].outputs[1])
-        return digitalRead(pin) === false;
     }
   };
 
@@ -796,7 +773,6 @@
       ['h', 'when %m.hwIn %m.ops %n%', 'whenInput', 'dial', '>', 50],
       ['R', 'read %m.hwIn', 'readInput', 'dial'],
       ['-'],
-      [' ', 'set pin %n %m.outputs', 'digitalWrite', 1, 'on'],
       [' ', 'set %m.voltageConnections to %n%', 'analogWrite', 'EXT1', 100],
       ['-'],
       [' ', 'rotate servo on %m.voltageConnections to %n degrees', 'rotateServo', 'EXT1', 180],
