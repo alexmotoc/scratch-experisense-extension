@@ -599,7 +599,7 @@
   }
 
   ext.analogWrite = function(conn, val) {
-    analogWrite(analogConnectionMapping[conn], val);
+    analogWrite(digitalConnectionMapping[conn], val);
   };
 
   ext.analogRead = function (sensitivity, conn, callback) {
