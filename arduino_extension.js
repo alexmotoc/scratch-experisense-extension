@@ -485,11 +485,11 @@
         pinModeMsg = new Uint8Array([PIN_MODE, pin, mode]);
     //TODO: nicer way of doing this
     //Switch on analog reporting if in ANALOG mode, else off
+    device.send(pinModeMsg.buffer);
     if (pin in digitalConnectionMapping) {
       reportAnalogMsg = new Uint8Array([REPORT_ANALOG, mode === ANALOG ? 0x01 : 0x00]);
       device.send(reportAnalogMsg.buffer);
     }
-    device.send(pinModeMsg.buffer);
   }
 
   function rawAnalogRead(pin, sensitivity, callback) {
