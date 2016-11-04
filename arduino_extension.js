@@ -166,18 +166,16 @@
       //Flash 88 on screen
       var that = this,
           flashSpeed = 500;
+      that.clearDisplays();
       setTimeout(function () {
-        that.clearDisplays()
+        that.writeTwoDigitDisplay(88);
         setTimeout(function () {
-          that.writeTwoDigitDisplay(88);
+          that.clearDisplays();
           setTimeout(function () {
-            that.clearDisplays();
-            setTimeout(function () {
-              that.writeTwoDigitDisplay(88);
-            }, flashSpeed);
+            that.writeTwoDigitDisplay(88);
           }, flashSpeed);
         }, flashSpeed);
-      }, 0);
+      }, flashSpeed);
     },
     writeFirstDisplay: function (num) {
       this.shiftOut(this.firstDisplaySegmentConfigs[num]);
