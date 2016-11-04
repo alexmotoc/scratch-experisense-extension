@@ -105,6 +105,7 @@
   
   for (var conn in analogConnectionMapping) {
     if (analogConnectionMapping.hasOwnProperty(conn)) {
+      //Analog pins start at 14 in digital numbering scheme
       digitalConnectionMapping[conn] = analogConnectionMapping[conn] + 14;
     }
   }
@@ -638,7 +639,7 @@
   ext.clearDisplays = function (callback) {
     segmentDisplays.clearDisplays();
     setTimeout(callback, DISPLAY_WRITE_DELAY);
-  }
+  };
   
   ext.calculateResistance = function (sensitivity, conn, callback) {
     var pin = analogConnectionMapping[conn];
