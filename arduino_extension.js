@@ -209,15 +209,15 @@
   var servos = {
     currentPositions: {},
     calculateRotationPosition: function (conn, changeInDegrees) {
-      //If no position recorded, servo hasn't moved yet – assume starting pos of 0
+      //If no position recorded, servo hasn't moved yet – assume starting position of 0
       var currentPosition = this.currentPositions[conn] || 0,
           newPosition = currentPosition + changeInDegrees;
       
-      return this.constrainRotation(newPosition)
+      return this.constrainRotation(newPosition);
     },
     constrainRotation: function (rotationInDegrees) {
       //Constrain to 0–180 degrees (range of servo)
-      return Math.min(Math.max(rotationInDegrees, 0), 180)
+      return Math.min(Math.max(rotationInDegrees, 0), 180);
     },
     rotateBy: function (conn, deg) {
       var pin = digitalConnectionMapping[conn],
@@ -225,7 +225,7 @@
           
       this.currentPositions[conn] = newPosition;
       this.writeOut(pin, newPosition);
-    }
+    },
     rotateTo: function (conn, deg) {
       var pin = digitalConnectionMapping[conn],
           newPosition = this.constrainRotation(deg);
