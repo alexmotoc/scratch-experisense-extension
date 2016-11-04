@@ -485,7 +485,7 @@
     device.send(pinModeMsg.buffer);
     //if an analog pin
     for (var conn in digitalConnectionMapping) {
-      if (digitalConnectionMapping.hasOwnProperty[conn] &&
+      if (digitalConnectionMapping.hasOwnProperty(conn) &&
           digitalConnectionMapping[conn] === pin) {
         //Switch on analog reporting if in ANALOG mode, else off
         reportAnalogMsg = new Uint8Array([
