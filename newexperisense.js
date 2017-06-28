@@ -9,7 +9,7 @@
     var rawData = null;
     
     //Number of byte pairs transmitted per query response
-    var messageLenth = 8;
+    var messageLength = 8;
 
     // Sensor states:
     var channels = {
