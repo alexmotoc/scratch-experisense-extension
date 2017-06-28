@@ -251,7 +251,7 @@
             ['b', 'sensor %m.booleanSensor?', 'sensorPressed', 'button pressed'],
             ['r', '%m.sensor sensor value', 'sensor', 'dial'],
             ['r', '%m.ext value', 'sensor', 'EXT1'],
-            ['R', '%m.sensitivity read from %m.resistance', 'read', 'A'],
+            ['R', '%m.sensitivity read from %m.resistance', 'read', 'normal', 'A'],
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
