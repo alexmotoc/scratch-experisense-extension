@@ -47,7 +47,11 @@
     };
     
     ext.read = function (sensitivity, which, callback) {
-        sensitivity === 'sensitive' ? readSensitive(which, callback) : readNormal(which, callback);
+        readScaled(sensitivity, which, callback);
+    }
+    
+    ext.readResistance = function (sensitivity, which, callback) {
+        readResistance(sensitivity, which, callback);
     }
 
     // Private logic
@@ -70,40 +74,40 @@
             return scaleSensor(channels[which].value);
         }
     }
-    
-    function readNormal(which, callback) {
-        function report() {
-            callback(scaleSensor(channels[which].value));
-        }
-        
-        if (!channels[which].sensitivity) {
-            report(); 
-        } else {
-            sensitivityPoll(which, false, report);
-        }
-    }
-    
-    function readSensitive(which, callback) {
-        function report() {
-            callback(scaleSensor(channels[which].value));
-        }
-        
-        if (channels[which].sensitivity) {
-            report(); 
-        } else {
-            sensitivityPoll(which, true, report);
-        }
-    }
-    
-    function sensitivityPoll(which, sensitivity, callback) {
+
+    function readPoll(sensitivity, which, callback) {
+        // If already in the right sensitivity mode we're good to go!
         if (channels[which].sensitivity === sensitivity) {
-            callback();
+            callback(); 
         } else {
+            // Switch sensitivity mode and wait to test.
+            // Keep spamming in case of packet loss
             switchSensitivity(which, sensitivity);
             setTimeout(function () {
-                sensitivityPoll(which, sensitivity, callback);
+                read(sensitivity, which, callback);
             }, 100);
         }
+    }
+    
+    function readScaled(sensitivity, which, callback) {
+        function report() {
+            callback(scaleSensor(channels[which].value));
+        }
+        
+        readPoll(sensitivity, which, report);
+    }
+    
+    function readResistance(sensitivity, which, callback) {
+        function report() {
+            // Value of resistors in resistive divider
+            var resistance = (sensitivity === 'normal') ? 10 : 1000 + 10,
+                vIn = 5,
+                vOut = channels[which].value / 1023 * 5;
+            
+            callback(resistance / (vIn / vOut - 1));
+        }
+        
+        readPoll(sensitivity, which, report);
     }
     
     function switchSensitivity(which, sensitivity) { 
@@ -252,6 +256,7 @@
             ['r', '%m.sensor sensor value', 'sensor', 'dial'],
             ['r', '%m.ext value', 'sensor', 'EXT1'],
             ['R', '%m.sensitivity read from %m.resistance', 'read', 'normal', 'A'],
+            ['R', '%m.sensitivity read resistance from %m.resistance (kΩ)', 'readResistance', 'normal', 'A']
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
