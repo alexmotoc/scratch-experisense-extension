@@ -84,7 +84,7 @@
             // Keep spamming in case of packet loss
             switchSensitivity(which, sensitivity);
             setTimeout(function () {
-                read(sensitivity, which, callback);
+                readPoll(sensitivity, which, callback);
             }, 100);
         }
     }
