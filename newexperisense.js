@@ -61,10 +61,14 @@
         if (which === 'light') {
             return getLightSensor();
         } else if (which === 'dial') {
-            return channels.EXT1.value;
+            return scaleSensor(channels.EXT1.value);
         } else {
-            return channels[which].value;
+            return scaleSensor(channels[which].value);
         }
+    }
+    
+    function scaleSensor(value) {
+        return (100 * value) / 1023; 
     }
     
     function getLightSensor() {
@@ -200,7 +204,7 @@
             ['h', 'when %m.booleanSensor', 'whenSensorConnected', 'button pressed'],
             ['h', 'when %m.sensor %m.lessMore %n', 'whenSensorPass', 'slider', '>', 50],
             ['b', 'sensor %m.booleanSensor?', 'sensorPressed', 'button pressed'],
-            ['r', '%m.sensor sensor value', 'sensor', 'slider'],
+            ['r', '%m.sensor sensor value', 'sensor', 'dial'],
             ['r', 'read from %m.port', 'sensor', 'A']
         ],
         menus: {
