@@ -109,7 +109,7 @@
     function switchSensitivity(which, sensitivity) { 
         var sensitivityCmd = new Uint8Array(1);
         sensitivityCmd[1] = (1 << 7) | ((sensitivity ? 1 : 0) << 3) | channels[which].channel;
-        device.send(sensitivityCmd);
+        device.send(sensitivityCmd.buffer);
     }
     
     function scaleSensor(value) {
