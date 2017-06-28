@@ -201,7 +201,7 @@
         pingCmd[0] = 0x02;
         poller = setInterval(function () {
             device.send(pingCmd.buffer);
-        }, 50);
+        }, 100);
         watchdog = setTimeout(function () {
             // This device didn't get good data in time, so give up on it. Clean up and then move on.
             // If we get good data then we'll terminate this watchdog.
