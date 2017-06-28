@@ -47,11 +47,11 @@
     };
     
     ext.read = function (sensitivity, which, callback) {
-        readScaled(sensitivity, which, callback);
+        readScaled(sensitivity === 'sensitive', which, callback);
     }
     
     ext.readResistance = function (sensitivity, which, callback) {
-        readResistance(sensitivity, which, callback);
+        readResistance(sensitivity === 'sensitive', which, callback);
     }
 
     // Private logic
