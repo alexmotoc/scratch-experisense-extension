@@ -63,7 +63,7 @@
         } else if (which === 'dial') {
             return channels.EXT1.value;
         } else {
-            return channels[which];
+            return channels[which].value;
         }
     }
     
