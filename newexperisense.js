@@ -7,6 +7,9 @@
 (function(ext) {
     var device = null;
     var rawData = null;
+    
+    //Number of byte pairs transmitted per query response
+    var messageLenth = 8;
 
     // Sensor states:
     var channels = {
@@ -75,7 +78,7 @@
         // Right now there's no guarantee that our 18 bytes start at the beginning of a message.
         // Maybe we should treat the data as a stream of 2-byte packets instead of 18-byte packets.
         // That way we could just check the high bit of each byte to verify that we're aligned.
-        for (var i = 0; i < 8; ++i) {
+        for (var i = 0; i < messageLength; ++i) {
             var hb = bytes[i * 2] & 0x7F;
             var channel = (hb >> 3) & 0x07;
             var lb = bytes[(i * 2) + 1] & 0x7F;
@@ -123,12 +126,12 @@
         device.open({stopBits: 0, bitRate: 38400, ctsFlowControl: 0});
         device.set_receive_handler(function (data) {
             //console.log('Received: ' + data.byteLength);
-            if (!rawData || rawData.byteLength === 18) {
+            if (!rawData || rawData.byteLength === messageLength * 2) {
                 rawData = new Uint8Array(data);
             }
             else rawData = appendBuffer(rawData, data);
 
-            if (rawData.byteLength >= 18) {
+            if (rawData.byteLength >= messageLength * 2) {
                 //console.log(rawData);
                 processData();
                 //device.send(pingCmd.buffer);
