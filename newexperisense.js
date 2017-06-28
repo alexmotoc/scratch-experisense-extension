@@ -102,7 +102,7 @@
             switchSensitivity(which, sensitivity);
             setTimeout(function () {
                 sensitivityPoll(which, sensitivity, callback);
-            }, 150);
+            }, 100);
         }
     }
     
@@ -181,7 +181,7 @@
             return;
         }
 
-        device.open({stopBits: 0, bitRate: 38400, ctsFlowControl: 0});
+        device.open({stopBits: 0, bitRate: 115200, ctsFlowControl: 0});
         device.set_receive_handler(function (data) {
             //console.log('Received: ' + data.byteLength);
             if (!rawData || rawData.byteLength === messageLength * 2) {
