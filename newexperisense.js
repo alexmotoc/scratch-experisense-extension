@@ -21,6 +21,9 @@
         A: {channel: 5, value: null, sensitivity: false},
         button: {channel: 6, value: null}
     };
+    
+    //TODO: generate programatically
+    var channelLookup = ['EXT2', 'EXT1', 'D', 'C', 'B', 'A', 'button', 'id'];
 
     ext.resetAll = function (){};
 
@@ -72,7 +75,7 @@
     function processData() {
         var bytes = new Uint8Array(rawData);
 
-        inputArray[7] = 0;
+        var firmwareId = null;
 
         // TODO: make this robust against misaligned packets.
         // Right now there's no guarantee that our 18 bytes start at the beginning of a message.
@@ -82,11 +85,17 @@
             var hb = bytes[i * 2] & 0x7F;
             var channel = (hb >> 3) & 0x07;
             var lb = bytes[(i * 2) + 1] & 0x7F;
-            channels[channel].sensitivity = !!(hb >> 6);
-            channels[channel].value = ((hb & 0x07) << 7) + lb;
+            var value = ((hb & 0x07) << 7) + lb;
+            if (channelLookup[channel] === 'id') {
+                // Deal with magic id channel that doesn't correspond to an actual input
+                firmwareId = value;
+                continue;
+            }
+            channels[channelLookup[channel]].sensitivity = !!(hb >> 6);
+            channels[channelLookup[channel]].value = value;
         }
 
-        if (watchdog && (inputArray[15] === 0x01)) {
+        if (watchdog && firmwareId === 0x01) {
             // Seems to be a valid PicoBoard.
             clearTimeout(watchdog);
             watchdog = null;
