@@ -45,6 +45,10 @@
     ext.sensor = function (which) {
         return getSensor(which);
     };
+    
+    ext.read = function (sensitivity, which, callback) {
+        sensitivity === 'sensitive' ? readSensitive(which, callback) : readNormal(which, callback);
+    }
 
     // Private logic
     function getSensorPressed(which) {
@@ -65,6 +69,47 @@
         } else {
             return scaleSensor(channels[which].value);
         }
+    }
+    
+    function readNormal(which, callback) {
+        function report() {
+            callback(scaleSensor(channels[which].value));
+        }
+        
+        if (!channels[which].sensitivity) {
+            report(); 
+        } else {
+            sensitivityPoll(which, false, report);
+        }
+    }
+    
+    function readSensitive(which, callback) {
+        function report() {
+            callback(scaleSensor(channels[which].value));
+        }
+        
+        if (channels[which].sensitivity) {
+            report(); 
+        } else {
+            sensitivityPoll(which, true, report);
+        }
+    }
+    
+    function sensitivityPoll(which, sensitivity, callback) {
+        if (channels[which].sensitivity === sensitivity) {
+            callback();
+        } else {
+            switchSensitivity(which, sensitivity);
+            setTimeout(function () {
+                sensitivityPoll(which, sensitivity, callback);
+            }, 50);
+        }
+    }
+    
+    function switchSensitivity(which, sensitivity) { 
+        var sensitivityCmd = new Uint8Array(1);
+        sensitivityCmd[1] = (1 << 7) | ((sensitivity ? 1 : 0) << 3) | channels[which].channel;
+        device.send(sensitivityCmd);
     }
     
     function scaleSensor(value) {
@@ -205,13 +250,17 @@
             ['h', 'when %m.sensor %m.lessMore %n', 'whenSensorPass', 'slider', '>', 50],
             ['b', 'sensor %m.booleanSensor?', 'sensorPressed', 'button pressed'],
             ['r', '%m.sensor sensor value', 'sensor', 'dial'],
-            ['r', 'read from %m.port', 'sensor', 'A']
+            ['r', '%m.ext value', 'sensor', 'EXT1'],
+            ['R', '%m.sensitivity read from %m.resistance', 'read', 'A'],
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
             sensor: ['dial', 'light'],
-            port: ['A', 'B', 'C', 'D', 'EXT1', 'EXT2'],
-            lessMore: ['>', '<']
+            resistance: ['A', 'B', 'C', 'D'],
+            ext: ['EXT1', 'EXT2'],
+            get port() { return this.resistance.concat(this.ext); },
+            lessMore: ['>', '<'],
+            sensitivity: ['normal', 'sensitive']
         },
         //TODO: update URL
         url: '/info/help/studio/tips/ext/PicoBoard/'
