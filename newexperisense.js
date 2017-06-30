@@ -287,7 +287,7 @@
             ['-'],
             [' ' , 'show %n on first display', 'firstSegmentDisplay', 1],
             [' ', 'show %n on second display', 'secondSegmentDisplay', 1],
-            [' ', 'display two-digit number %n', 'twoDigitSegmentDisplay', 10],
+            [' ', 'display 0–100 number %n', 'twoDigitSegmentDisplay', 10],
             [' ', 'clear displays', 'clearDisplays']
         ],
         menus: {
