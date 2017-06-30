@@ -285,10 +285,10 @@
             ['R', '%m.sensitivity read from %m.resistance', 'read', 'normal', 'A'],
             ['R', '%m.sensitivity read resistance from %m.resistance (kΩ)', 'readResistance', 'normal', 'A'],
             ['-'],
-            ['w', 'show %n on first display', 'firstSegmentDisplay', 1],
-            ['w', 'show %n on second display', 'secondSegmentDisplay', 1],
-            ['w', 'display two-digit number %n', 'twoDigitSegmentDisplay', 10],
-            ['w', 'clear displays', 'clearDisplays']
+            [' ' , 'show %n on first display', 'firstSegmentDisplay', 1],
+            [' ', 'show %n on second display', 'secondSegmentDisplay', 1],
+            [' ', 'display two-digit number %n', 'twoDigitSegmentDisplay', 10],
+            [' ', 'clear displays', 'clearDisplays']
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
