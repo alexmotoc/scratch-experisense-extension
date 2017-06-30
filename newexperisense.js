@@ -208,46 +208,49 @@
         // If potentialDevices is empty, device will be undefined.
         // That will get us back here next time a device is connected.
         device = potentialDevices.shift();
-
-        device.open({stopBits: 0, bitRate: 115200, ctsFlowControl: 0}, function (dev) {
+        console.log('trying...');
+        console.log(device);
+        if (device) {
+            device.open({stopBits: 0, bitRate: 115200, ctsFlowControl: 0}, function (dev) {
             
-            if (!dev) {
-                tryNextDevice();
-                return;
-            }
+                if (!dev) {
+                    tryNextDevice();
+                    return;
+                }
             
-            device.set_receive_handler(function (data) {
-                //console.log('Received: ' + data.byteLength);
-                if (!rawData || rawData.byteLength === messageLength * 2) {
-                    rawData = new Uint8Array(data);
-                }
-                else rawData = appendBuffer(rawData, data);
+                device.set_receive_handler(function (data) {
+                    //console.log('Received: ' + data.byteLength);
+                    if (!rawData || rawData.byteLength === messageLength * 2) {
+                        rawData = new Uint8Array(data);
+                    }
+                    else rawData = appendBuffer(rawData, data);
 
-                if (rawData.byteLength >= messageLength * 2) {
-                    //console.log(rawData);
-                    processData();
-                    //device.send(pingCmd.buffer);
-                }
+                    if (rawData.byteLength >= messageLength * 2) {
+                        //console.log(rawData);
+                        processData();
+                        //device.send(pingCmd.buffer);
+                    }
+                });
+
+                // Tell the PicoBoard to send a input data every 50ms
+                var pingCmd = new Uint8Array(1);
+                pingCmd[0] = 0x02;
+                poller = setInterval(function () {
+                    device.send(pingCmd.buffer);
+                }, 50);
+                watchdog = setTimeout(function () {
+                    // This device didn't get good data in time, so give up on it. Clean up and then move on.
+                    // If we get good data then we'll terminate this watchdog.
+                    clearInterval(poller);
+                    poller = null;
+                    device.set_receive_handler(null);
+                    device.close();
+                    device = null;
+                    tryNextDevice();
+                }, 250);
             });
-
-            // Tell the PicoBoard to send a input data every 50ms
-            var pingCmd = new Uint8Array(1);
-            pingCmd[0] = 0x02;
-            poller = setInterval(function () {
-                device.send(pingCmd.buffer);
-            }, 50);
-            watchdog = setTimeout(function () {
-                // This device didn't get good data in time, so give up on it. Clean up and then move on.
-                // If we get good data then we'll terminate this watchdog.
-                clearInterval(poller);
-                poller = null;
-                device.set_receive_handler(null);
-                device.close();
-                device = null;
-                tryNextDevice();
-            }, 250);
-        });
-    };
+        }
+    }
 
     ext._deviceRemoved = function (dev) {
         if (device != dev) {
