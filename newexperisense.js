@@ -53,6 +53,20 @@
     ext.readResistance = function (sensitivity, which, callback) {
         readResistance(sensitivity === 'sensitive', which, callback);
     }
+    
+    ext.firstSegmentDisplay = function (num) {
+        writeDisplay(num, 1);
+    }
+    
+    ext.secondSegmentDisplay = function (num) {
+        writeDisplay(num, 2);   
+    }
+    
+    ext.twoDigitSegmentDisplay = function (num) {
+        writeDisplay(num, 3);   
+    }
+    
+    ext.clearDisplays = clearDisplays;
 
     // Private logic
     function getSensorPressed(which) {
@@ -123,6 +137,19 @@
     function getLightSensor() {
         var v = channels.EXT2.value;
         return (v < 25) ? 100 - v : Math.round((1023 - v) * (75 / 998));
+    }
+    
+    function writeDisplay(num, display) {
+        // display 1 == 1st, display 2 == 2nd, display 3 == both
+        // following byte == number to display
+        var displayCmd = new Uint8Array([display | 0x40, num]);
+        device.send(displayCmd.buffer);
+    }
+    
+    function clearDisplays() {
+        // display 4 == clear (no following byte)
+        var clearCmd = new Uint8Array([0x40 | 4]);
+        device.send(clearCmd.buffer);
     }
 
     function processData() {
@@ -256,7 +283,12 @@
             ['r', '%m.sensor sensor value', 'sensor', 'dial'],
             ['r', '%m.ext value', 'sensor', 'EXT1'],
             ['R', '%m.sensitivity read from %m.resistance', 'read', 'normal', 'A'],
-            ['R', '%m.sensitivity read resistance from %m.resistance (kΩ)', 'readResistance', 'normal', 'A']
+            ['R', '%m.sensitivity read resistance from %m.resistance (kΩ)', 'readResistance', 'normal', 'A'],
+            ['-'],
+            ['w', 'show %n on first display', 'firstSegmentDisplay', 1],
+            ['w', 'show %n on second display', 'secondSegmentDisplay', 1],
+            ['w', 'display two-digit number %n', 'twoDigitSegmentDisplay', 10],
+            ['w', 'clear displays', 'clearDisplays']
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
