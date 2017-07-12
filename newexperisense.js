@@ -240,7 +240,7 @@
         console.log('trying...');
         console.log(device);
         if (device) {
-            device.open({stopBits: 0, bitRate: 115200, ctsFlowControl: 0}, function (dev) {
+            device.open({stopBits: 0, bitRate: 38400, ctsFlowControl: 0}, function (dev) {
             
                 if (!dev) {
                     tryNextDevice();
