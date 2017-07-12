@@ -29,6 +29,7 @@
       ultrasound: null
     };
     
+    // Array of arrays!
     var commandQueue = [];
 
     ext.resetAll = function (){};
@@ -158,7 +159,7 @@
     }
     
     function enqueueCommands(commandArray) {
-      commandQueue = commandQueue.concat(commandArray);
+      commandQueue = commandQueue.push(commandArray);
     }
     
     function ultrasound() {
@@ -327,7 +328,7 @@
             [' ', 'display 0–100 number %n', 'twoDigitSegmentDisplay', 10],
             [' ', 'clear displays', 'clearDisplays'],
             ['-'],
-            ['r', 'ultrasound echo time (µs)', 'ultrasound']
+            ['r', 'ultrasound ping time', 'ultrasound']
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
