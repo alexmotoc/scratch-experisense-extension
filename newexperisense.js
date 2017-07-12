@@ -158,7 +158,7 @@
     }
     
     function enqueueCommands(commandArray) {
-      commandQueue = commandQueue.push(commandArray);
+      commandQueue.push(commandArray);
     }
     
     function ultrasound() {
