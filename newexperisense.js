@@ -327,7 +327,7 @@
             [' ', 'display 0–100 number %n', 'twoDigitSegmentDisplay', 10],
             [' ', 'clear displays', 'clearDisplays'],
             ['-'],
-            ['r', 'ultrasound ping time', 'ultrasound']
+            ['r', 'ultrasound echo time (µs)', 'ultrasound']
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
