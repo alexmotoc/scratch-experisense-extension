@@ -134,7 +134,7 @@
     }
     
     function switchSensitivity(which, sensitivity) { 
-        enqueueCommands([(1 << 7) | ((sensitivity ? 1 : 0) << 3) | channels[which].channel]);
+        enqueueCommand([(1 << 7) | ((sensitivity ? 1 : 0) << 3) | channels[which].channel]);
     }
     
     function scaleSensor(value) {
@@ -149,20 +149,20 @@
     function writeDisplay(num, display) {
         // display 1 == 1st, display 2 == 2nd, display 3 == both
         // following byte == number to display
-        enqueueCommands([display | 0x40, num]);
+        enqueueCommand([display | 0x40, num]);
     }
     
     function clearDisplays() {
         // display 4 == clear (no following byte)
-        enqueueCommands([0x40 | 4]);
+        enqueueCommand([0x40 | 4]);
     }
     
-    function enqueueCommands(commandArray) {
+    function enqueueCommand(commandArray) {
       commandQueue.push(commandArray);
     }
     
     function ultrasound() {
-      enqueueCommands([0xC0]);
+      enqueueCommand([0xC0]);
       return extraDevices.ultrasound;   
     }
 
@@ -182,6 +182,7 @@
             var channel = (hb >> 3) & 0x07;
             var lb = bytes[(i * 2) + 1] & 0x7F;
             var value = ((hb & 0x07) << 7) + lb;
+            
             if (channelLookup[channel] === 'id') {
                 // Deal with magic id channel that doesn't correspond to an actual input
                 messageTypeId = value;
@@ -317,6 +318,7 @@
             ['h', 'when %m.booleanSensor', 'whenSensorConnected', 'button pressed'],
             ['h', 'when %m.sensor %m.lessMore %n', 'whenSensorPass', 'slider', '>', 50],
             ['b', 'sensor %m.booleanSensor?', 'sensorPressed', 'button pressed'],
+            ['-'],
             ['r', '%m.sensor sensor value', 'sensor', 'dial'],
             ['r', '%m.ext value', 'sensor', 'EXT1'],
             ['R', '%m.sensitivity read from %m.resistance', 'read', 'normal', 'A'],
@@ -327,7 +329,7 @@
             [' ', 'display 0–100 number %n', 'twoDigitSegmentDisplay', 10],
             [' ', 'clear displays', 'clearDisplays'],
             ['-'],
-            ['r', 'ultrasound ping time', 'ultrasound']
+            ['r', 'ultrasound echo time (µs)', 'ultrasound']
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
