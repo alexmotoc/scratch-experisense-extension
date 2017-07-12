@@ -154,8 +154,7 @@
     
     function clearDisplays() {
         // display 4 == clear (no following byte)
-        var clearCmd = new Uint8Array([0x40 | 4]);
-        device.send(clearCmd.buffer);
+        enqueueCommands([0x40 | 4]);
     }
     
     function enqueueCommands(commandArray) {
