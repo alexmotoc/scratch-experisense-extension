@@ -24,6 +24,12 @@
     
     //TODO: generate programatically
     var channelLookup = ['EXT2', 'EXT1', 'D', 'C', 'B', 'A', 'button', 'id'];
+    
+    var extraDevices = {
+      ultrasound: null
+    };
+    
+    var commandQueue = [];
 
     ext.resetAll = function (){};
 
@@ -48,25 +54,27 @@
     
     ext.read = function (sensitivity, which, callback) {
         readScaled(sensitivity === 'sensitive', which, callback);
-    }
+    };
     
     ext.readResistance = function (sensitivity, which, callback) {
         readResistance(sensitivity === 'sensitive', which, callback);
-    }
+    };
     
     ext.firstSegmentDisplay = function (num) {
         writeDisplay(num, 1);
-    }
+    };
     
     ext.secondSegmentDisplay = function (num) {
         writeDisplay(num, 2);   
-    }
+    };
     
     ext.twoDigitSegmentDisplay = function (num) {
         writeDisplay(num, 3);   
-    }
+    };
     
     ext.clearDisplays = clearDisplays;
+    
+    ext.ultrasound = ultrasound;
 
     // Private logic
     function getSensorPressed(which) {
@@ -125,9 +133,7 @@
     }
     
     function switchSensitivity(which, sensitivity) { 
-        var sensitivityCmd = new Uint8Array([(1 << 7) | ((sensitivity ? 1 : 0) << 3) | channels[which].channel]);
-        console.log(sensitivityCmd[1]);
-        device.send(sensitivityCmd.buffer);
+        enqueueCommands([(1 << 7) | ((sensitivity ? 1 : 0) << 3) | channels[which].channel]);
     }
     
     function scaleSensor(value) {
@@ -142,8 +148,7 @@
     function writeDisplay(num, display) {
         // display 1 == 1st, display 2 == 2nd, display 3 == both
         // following byte == number to display
-        var displayCmd = new Uint8Array([display | 0x40, num]);
-        device.send(displayCmd.buffer);
+        enqueueCommands([display | 0x40, num]);
     }
     
     function clearDisplays() {
@@ -151,11 +156,22 @@
         var clearCmd = new Uint8Array([0x40 | 4]);
         device.send(clearCmd.buffer);
     }
+    
+    function enqueueCommands(commandArray) {
+      commandQueue = commandQueue.concat(commandArray);
+    }
+    
+    function ultrasound() {
+      enqueueCommands([0xC0]);
+      return extraDevices.ultrasound;   
+    }
 
     function processData() {
         var bytes = new Uint8Array(rawData);
 
-        var firmwareId = null;
+        var messageTypeId = null;
+        
+        var tempDeviceVal = null;
 
         // TODO: make this robust against misaligned packets.
         // Right now there's no guarantee that our 18 bytes start at the beginning of a message.
@@ -168,14 +184,27 @@
             var value = ((hb & 0x07) << 7) + lb;
             if (channelLookup[channel] === 'id') {
                 // Deal with magic id channel that doesn't correspond to an actual input
-                firmwareId = value;
+                messageTypeId = value;
                 continue;
+            }
+            // first 2 byte pairs give device value.  1 byte payload per byte pair message.
+            if (messageTypeId && messageTypeId !== 0x01) {
+              if (i === 1) {
+                tempDeviceVal = value << 8;
+              }
+              if (i == 2) {
+                tempDeviceVal |= value;
+                if (messageTypeId === 0x02) {
+                  // Ultrasound
+                  extraDevices.ultrasound = tempDeviceVal;
+                }
+              }
             }
             channels[channelLookup[channel]].sensitivity = !!(hb >> 6);
             channels[channelLookup[channel]].value = value;
         }
 
-        if (watchdog && firmwareId === 0x01) {
+        if (watchdog && messageTypeId === 0x01) {
             // Seems to be a valid PicoBoard.
             clearTimeout(watchdog);
             watchdog = null;
@@ -200,7 +229,7 @@
         if (!device) {
             tryNextDevice();
         }
-    }
+    };
 
     var poller = null;
     var watchdog = null;
@@ -233,15 +262,16 @@
                 });
 
                 // Tell the PicoBoard to send a input data every 50ms
-                var pingCmd = new Uint8Array(1);
-                pingCmd[0] = 0x02;
                 poller = setInterval(function () {
+                    // If we've a command to send, do so, else send normal ping
+                    var pingCmd = new Uint8Array(commandQueue.shift() || [0x02]);
                     device.send(pingCmd.buffer);
                 }, 50);
                 watchdog = setTimeout(function () {
                     // This device didn't get good data in time, so give up on it. Clean up and then move on.
                     // If we get good data then we'll terminate this watchdog.
                     clearInterval(poller);
+                    commandQueue = [];
                     poller = null;
                     device.set_receive_handler(null);
                     device.close();
@@ -280,7 +310,7 @@
             return {status: 1, msg: 'Probing for ExperiSense'};
         }
         return {status: 2, msg: 'ExperiSense connected'};
-    }
+    };
 
     var descriptor = {
         blocks: [
@@ -295,7 +325,9 @@
             [' ' , 'show %n on first display', 'firstSegmentDisplay', 1],
             [' ', 'show %n on second display', 'secondSegmentDisplay', 1],
             [' ', 'display 0–100 number %n', 'twoDigitSegmentDisplay', 10],
-            [' ', 'clear displays', 'clearDisplays']
+            [' ', 'clear displays', 'clearDisplays'],
+            ['-'],
+            ['r', 'ultrasound ping time', 'ultrasound']
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
