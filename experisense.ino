@@ -36,6 +36,8 @@ void setup() {
   pinMode(shiftClockPin, OUTPUT);
   pinMode(latchPins[0], OUTPUT);
   pinMode(latchPins[1], OUTPUT);
+  while (!Serial)
+    ;
 }
 
 void loop() {
