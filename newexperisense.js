@@ -278,7 +278,7 @@
                     device.close();
                     device = null;
                     tryNextDevice();
-                }, 250);
+                }, 2000);
             });
         }
     }
