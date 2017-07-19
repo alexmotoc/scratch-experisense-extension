@@ -316,7 +316,7 @@
     var descriptor = {
         blocks: [
             ['h', 'when %m.booleanSensor', 'whenSensorConnected', 'button pressed'],
-            ['h', 'when %m.sensor %m.lessMore %n', 'whenSensorPass', 'slider', '>', 50],
+            ['h', 'when %m.sensor %m.lessMore %n', 'whenSensorPass', 'dial', '>', 50],
             ['b', 'sensor %m.booleanSensor?', 'sensorPressed', 'button pressed'],
             ['-'],
             ['r', '%m.sensor sensor value', 'sensor', 'dial'],
