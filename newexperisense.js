@@ -193,7 +193,7 @@
               if (i === 1) {
                 tempDeviceVal = value << 8;
               }
-              if (i == 2) {
+              if (i === 2) {
                 tempDeviceVal |= value;
                 if (messageTypeId === 0x02) {
                   // Ultrasound
