@@ -61,16 +61,17 @@
         readResistance(sensitivity === 'sensitive', which, callback);
     };
     
+    //TODO: Make min() calls out of function!
     ext.firstSegmentDisplay = function (num, callback) {
-        writeDisplay(num, 1, callback);
+        writeDisplay(min(num, 9), 1, callback);
     };
     
     ext.secondSegmentDisplay = function (num, callback) {
-        writeDisplay(num, 2, callback);   
+        writeDisplay(min(num, 9), 2, callback);   
     };
     
     ext.twoDigitSegmentDisplay = function (num, callback) {
-        writeDisplay(num, 3, callback);   
+        writeDisplay(min(num, 100), 3, callback);   
     };
     
     ext.clearDisplays = clearDisplays;
@@ -149,7 +150,8 @@
     function writeDisplay(num, display, callback) {
         // display 1 == 1st, display 2 == 2nd, display 3 == both
         // following byte == number to display
-        enqueueCommand([display | 0x40, num], callback);
+        // Don't try to write 2s compliment negative numbers!
+        enqueueCommand([display | 0x40, max(0, num)], callback);
     }
     
     function clearDisplays(callback) {
