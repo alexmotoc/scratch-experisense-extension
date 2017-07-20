@@ -66,7 +66,7 @@
     };
     
     ext.secondSegmentDisplay = function (num, callback) {
-        writeDisplay(num, 2);   
+        writeDisplay(num, 2, callback);   
     };
     
     ext.twoDigitSegmentDisplay = function (num, callback) {
