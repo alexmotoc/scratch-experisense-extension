@@ -63,15 +63,15 @@
     
     //TODO: Make min() calls out of function!
     ext.firstSegmentDisplay = function (num, callback) {
-        writeDisplay(min(num, 9), 1, callback);
+        writeDisplay(Math.min(num, 9), 1, callback);
     };
     
     ext.secondSegmentDisplay = function (num, callback) {
-        writeDisplay(min(num, 9), 2, callback);   
+        writeDisplay(Math.min(num, 9), 2, callback);   
     };
     
     ext.twoDigitSegmentDisplay = function (num, callback) {
-        writeDisplay(min(num, 100), 3, callback);   
+        writeDisplay(Math.min(num, 100), 3, callback);   
     };
     
     ext.clearDisplays = clearDisplays;
@@ -151,7 +151,7 @@
         // display 1 == 1st, display 2 == 2nd, display 3 == both
         // following byte == number to display
         // Don't try to write 2s compliment negative numbers!
-        enqueueCommand([display | 0x40, max(0, num)], callback);
+        enqueueCommand([display | 0x40, Math.max(0, num)], callback);
     }
     
     function clearDisplays(callback) {
