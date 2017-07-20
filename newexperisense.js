@@ -61,16 +61,16 @@
         readResistance(sensitivity === 'sensitive', which, callback);
     };
     
-    ext.firstSegmentDisplay = function (num) {
-        writeDisplay(num, 1);
+    ext.firstSegmentDisplay = function (num, callback) {
+        writeDisplay(num, 1, callback);
     };
     
-    ext.secondSegmentDisplay = function (num) {
+    ext.secondSegmentDisplay = function (num, callback) {
         writeDisplay(num, 2);   
     };
     
-    ext.twoDigitSegmentDisplay = function (num) {
-        writeDisplay(num, 3);   
+    ext.twoDigitSegmentDisplay = function (num, callback) {
+        writeDisplay(num, 3, callback);   
     };
     
     ext.clearDisplays = clearDisplays;
@@ -146,24 +146,25 @@
         return (v < 25) ? 100 - v : Math.round((1023 - v) * (75 / 998));
     }
     
-    function writeDisplay(num, display) {
+    function writeDisplay(num, display, callback) {
         // display 1 == 1st, display 2 == 2nd, display 3 == both
         // following byte == number to display
-        enqueueCommand([display | 0x40, num]);
+        enqueueCommand([display | 0x40, num], callback);
     }
     
-    function clearDisplays() {
+    function clearDisplays(callback) {
         // display 4 == clear (no following byte)
-        enqueueCommand([0x40 | 4]);
+        enqueueCommand([0x40 | 4], callback);
     }
     
-    function enqueueCommand(commandArray) {
-      commandQueue.push(commandArray);
+    function enqueueCommand(commandArray, callback) {
+      commandQueue.push([commandArray, callback]);
     }
     
-    function ultrasound() {
-      enqueueCommand([0xC0]);
-      return extraDevices.ultrasound;   
+    function ultrasound(callback) {
+      enqueueCommand([0xC0], function () {
+        callback(extraDevices.ultrasound);
+      });
     }
 
     function processData() {
@@ -265,7 +266,16 @@
                 // Tell the PicoBoard to send a input data every 50ms
                 poller = setInterval(function () {
                     // If we've a command to send, do so, else send normal ping
-                    var pingCmd = new Uint8Array(commandQueue.shift() || [0x02]);
+                    var nextInQueue,
+                        queuedCmd,
+                        pingCmd;
+                    
+                    if (nextInQueue = commandQueue.shift()) {
+                        queuedCmd = nextInQueue[0];
+                        //Do callback
+                        nextInQueue[1]();
+                    }
+                    pingCmd = new Uint8Array(queuedCmd || [0x02]);
                     device.send(pingCmd.buffer);
                 }, 50);
                 watchdog = setTimeout(function () {
@@ -324,12 +334,12 @@
             ['R', '%m.sensitivity read from %m.resistance', 'read', 'normal', 'A'],
             ['R', '%m.sensitivity read resistance from %m.resistance (kΩ)', 'readResistance', 'normal', 'A'],
             ['-'],
-            [' ' , 'show %n on first display', 'firstSegmentDisplay', 1],
-            [' ', 'show %n on second display', 'secondSegmentDisplay', 1],
-            [' ', 'display 0–100 number %n', 'twoDigitSegmentDisplay', 10],
-            [' ', 'clear displays', 'clearDisplays'],
+            ['w' , 'show %n on first display', 'firstSegmentDisplay', 1],
+            ['w', 'show %n on second display', 'secondSegmentDisplay', 1],
+            ['w', 'display 0–100 number %n', 'twoDigitSegmentDisplay', 10],
+            ['w', 'clear displays', 'clearDisplays'],
             ['-'],
-            ['r', 'ultrasound echo time (µs)', 'ultrasound']
+            ['R', 'ultrasound echo time (µs)', 'ultrasound']
         ],
         menus: {
             booleanSensor: ['button pressed', 'A connected', 'B connected', 'C connected', 'D connected'],
