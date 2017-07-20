@@ -326,7 +326,7 @@
     var descriptor = {
         blocks: [
             ['h', 'when %m.booleanSensor', 'whenSensorConnected', 'button pressed'],
-            ['h', 'when %m.sensor %m.lessMore %n', 'whenSensorPass', 'dial', '>', 50],
+            ['h', 'when resistanceAndSensor %m.lessMore %n', 'whenSensorPass', 'dial', '>', 50],
             ['b', 'sensor %m.booleanSensor?', 'sensorPressed', 'button pressed'],
             ['-'],
             ['r', '%m.sensor sensor value', 'sensor', 'dial'],
@@ -348,7 +348,8 @@
             ext: ['EXT1', 'EXT2'],
             get port() { return this.resistance.concat(this.ext); },
             lessMore: ['>', '<'],
-            sensitivity: ['normal', 'sensitive']
+            sensitivity: ['normal', 'sensitive'],
+            get resistanceAndSensor() { return this.sensor.concat(this.resistance); }
         },
         //TODO: update URL
         url: '/info/help/studio/tips/ext/PicoBoard/'
